@@ -1,0 +1,100 @@
+{
+  "api": "Finnhub",
+  "base_url": "https://finnhub.io/api/v1",
+  "authentication": {
+    "required": true,
+    "method": "API key in query parameter",
+    "parameter_name": "token",
+    "signup_url": "https://finnhub.io/register"
+  },
+  "free_tier": {
+    "api_calls_per_minute": 60,
+    "api_calls_per_day": null,
+    "includes_realtime_quotes": true,
+    "includes_company_news": true,
+    "includes_sec_filings": true,
+    "includes_insider_transactions": true,
+    "includes_websocket_streaming": true,
+    "max_symbols_stream": 50
+  },
+  "news_endpoints": {
+    "general_news": {
+      "endpoint": "/news",
+      "parameters": {
+        "category": "general (or forex, crypto, merger, dividends, splits, earnings, ipo, guidance, buyback, rating)",
+        "minId": "optional - pagination",
+        "limit": "number of news items (default 20, max 100)"
+      },
+      "example_request": "GET /news?category=general&token=YOUR_API_KEY",
+      "expected_response_fields": [
+        "id",
+        "category",
+        "datetime",
+        "headline",
+        "summary",
+        "source",
+        "url",
+        "image",
+        "related"
+      ]
+    },
+    "company_news": {
+      "endpoint": "/company-news",
+      "parameters": {
+        "symbol": "Stock symbol (required)",
+        "from": "Start date YYYY-MM-DD (required)",
+        "to": "End date YYYY-MM-DD (required)"
+      },
+      "example_request": "GET /company-news?symbol=AAPL&from=2026-04-01&to=2026-04-12&token=YOUR_API_KEY",
+      "expected_response_fields": [
+        "id",
+        "category",
+        "datetime",
+        "headline",
+        "summary",
+        "source",
+        "url",
+        "image",
+        "related"
+      ]
+    }
+  },
+  "insider_transaction_endpoints": {
+    "form_4_filings": {
+      "endpoint": "/insider-transactions",
+      "parameters": {
+        "symbol": "Stock symbol",
+        "limit": "Number of records"
+      },
+      "expected_fields": [
+        "symbol",
+        "name",
+        "position",
+        "share",
+        "change",
+        "filingUrl",
+        "transactionDate",
+        "transactionPrice"
+      ]
+    },
+    "insider_sentiment": {
+      "endpoint": "/insider-sentiment",
+      "parameters": {
+        "symbol": "Stock symbol",
+        "month": "Month for sentiment (optional)"
+      }
+    }
+  },
+  "signup_requirements": [
+    "Email address",
+    "Password",
+    "No credit card required for free tier",
+    "Instant API key generation upon signup"
+  ],
+  "rate_limit_handling": {
+    "headers": "X-RateLimit-Limit, X-RateLimit-Remaining",
+    "exceeding_limit": "Returns 429 Too Many Requests",
+    "free_tier_limit": "60 requests/minute"
+  },
+  "status_202504": "Free demo token no longer works; requires valid API key from account registration"
+}

@@ -1,0 +1,85 @@
+{
+  "api": "MarketAux",
+  "base_url": "https://api.marketaux.com/v1",
+  "authentication": {
+    "required": true,
+    "method": "API token",
+    "parameter_name": "api_token",
+    "signup_url": "https://www.marketaux.com/"
+  },
+  "free_tier": {
+    "api_calls_per_minute": 60,
+    "includes_news_data": true,
+    "includes_stock_symbols": true,
+    "includes_news_sentiment": true,
+    "includes_company_fundamentals": false
+  },
+  "news_endpoints": {
+    "all_news": {
+      "endpoint": "/news/all",
+      "parameters": {
+        "api_token": "Your API token (required)",
+        "symbols": "Comma-separated stock symbols (optional)",
+        "limit": "Number of results (1-100, default 50)",
+        "page": "Page number for pagination",
+        "sort": "latest or earliest",
+        "filter_entity": "filter by entity type"
+      },
+      "example_request": "GET /news/all?api_token=YOUR_TOKEN&limit=10&page=1",
+      "expected_response_fields": [
+        "uuid",
+        "title",
+        "description",
+        "content",
+        "url",
+        "image",
+        "source",
+        "category",
+        "published_at",
+        "updated_at",
+        "entities"
+      ]
+    },
+    "symbol_news": {
+      "endpoint": "/news/all",
+      "parameters": {
+        "symbols": "Specific stock symbol(s)",
+        "api_token": "Your API token"
+      },
+      "example_request": "GET /news/all?symbols=AAPL,MSFT&api_token=YOUR_TOKEN",
+      "response_sample": {
+        "status": "success",
+        "count": 2,
+        "data": [
+          {
+            "uuid": "unique-id-1",
+            "title": "Apple Reports Strong Quarterly Earnings",
+            "description": "Tech giant exceeds expectations...",
+            "content": "Full article content...",
+            "url": "https://news-source.com/article",
+            "image": "https://image-url.com/image.jpg",
+            "source": "Reuters",
+            "category": "earnings",
+            "published_at": "2026-04-10T14:30:00Z",
+            "updated_at": "2026-04-10T14:35:00Z",
+            "entities": ["AAPL", "Apple Inc."]
+          }
+        ]
+      }
+    }
+  },
+  "signup_requirements": [
+    "Email address",
+    "No credit card required for free tier",
+    "Instant token generation",
+    "100% free forever plan available"
+  ],
+  "data_quality": {
+    "source_coverage": "Aggregates from 15,000+ news sources",
+    "update_frequency": "Real-time",
+    "news_categories": ["earnings", "ipo", "merger", "acquisition", "dividend", "split", "buyback"],
+    "historical_data": "Limited on free tier",
+    "small_cap_coverage": "Good for major events, limited for micro-cap stocks"
+  },
+  "status_202504": "Free demo token appears deprecated; requires registration for valid API token"
+}

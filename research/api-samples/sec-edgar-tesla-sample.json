@@ -1,0 +1,48 @@
+{
+  "endpoint": "https://data.sec.gov/submissions/CIK0001652044.json",
+  "company_metadata": {
+    "name": "Tesla, Inc.",
+    "cik": "0001652044",
+    "tickers": ["TSLA"],
+    "exchanges": ["Nasdaq"],
+    "sicDescription": "Motor Vehicles, Passenger Car",
+    "category": "Large accelerated filer",
+    "stateOfIncorporation": "DE"
+  },
+  "recent_filings_summary": {
+    "total_recent_filings": 142,
+    "forms_in_last_30_days": [
+      {
+        "form": "4",
+        "filingDate": "2026-04-03",
+        "description": "Insider transaction report (stock trades by officers/directors)"
+      },
+      {
+        "form": "4",
+        "filingDate": "2026-04-02",
+        "description": "Insider transaction report"
+      },
+      {
+        "form": "4",
+        "filingDate": "2026-04-01",
+        "description": "Insider transaction report"
+      }
+    ]
+  },
+  "key_form_types_available": [
+    "10-K (Annual report)",
+    "10-Q (Quarterly report)",
+    "8-K (Material events)",
+    "4 (Insider transactions)",
+    "144 (Stock sales)",
+    "424B4 (Prospectus)",
+    "3 (Initial insider holdings)"
+  ],
+  "data_characteristics": {
+    "response_size_bytes": 156000,
+    "includes_insider_transactions": true,
+    "includes_material_news_triggers": true,
+    "earliest_filing_available": "2010",
+    "most_recent_update": "2026-04-03"
+  }
+}

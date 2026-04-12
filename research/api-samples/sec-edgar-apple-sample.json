@@ -1,0 +1,75 @@
+{
+  "endpoint": "https://data.sec.gov/submissions/CIK0000320193.json",
+  "company_metadata": {
+    "name": "Apple Inc.",
+    "cik": "0000320193",
+    "entityType": "operating",
+    "tickers": ["AAPL"],
+    "exchanges": ["Nasdaq"],
+    "sic": "3571",
+    "sicDescription": "Electronic Computers",
+    "category": "Large accelerated filer",
+    "stateOfIncorporation": "CA",
+    "website": "https://www.apple.com"
+  },
+  "recent_filings_sample": {
+    "total_count": 130,
+    "most_recent_5": [
+      {
+        "accessionNumber": "0001140361-26-013192",
+        "filingDate": "2026-04-03",
+        "reportDate": "2026-04-01",
+        "acceptanceDatetime": "2026-04-03T23:20:45Z",
+        "act": "34",
+        "form": "4",
+        "fileNumber": "",
+        "filmNumber": "",
+        "items": "",
+        "size": 27651,
+        "isXBRL": 1,
+        "isInlineXBRL": 1,
+        "primaryDocument": "0001140361-26-013192-index.htm",
+        "primaryDocDescription": "Form 4"
+      },
+      {
+        "accessionNumber": "0001140361-26-013191",
+        "filingDate": "2026-04-03",
+        "reportDate": "2026-04-01",
+        "acceptanceDatetime": "2026-04-03T23:18:23Z",
+        "act": "34",
+        "form": "4",
+        "fileNumber": "",
+        "filmNumber": "",
+        "items": "",
+        "size": 28145,
+        "isXBRL": 1,
+        "isInlineXBRL": 1,
+        "primaryDocument": "0001140361-26-013191-index.htm",
+        "primaryDocDescription": "Form 4"
+      },
+      {
+        "accessionNumber": "0001969223-26-000420",
+        "filingDate": "2026-04-02",
+        "reportDate": "",
+        "acceptanceDatetime": "2026-04-02T13:50:21Z",
+        "act": "34",
+        "form": "144",
+        "fileNumber": "",
+        "filmNumber": "",
+        "items": "",
+        "size": 5589,
+        "isXBRL": 0,
+        "isInlineXBRL": 0,
+        "primaryDocument": "xslF144X01/primary_doc.xml",
+        "primaryDocDescription": "Form 144"
+      }
+    ]
+  },
+  "data_quality_notes": {
+    "coverage": "Complete filing history from 1994 onwards",
+    "update_frequency": "Near real-time (< 1 second typical delay)",
+    "data_types": ["Form 4 (insider transactions)", "Form 144 (stock sales)", "10-K (annual reports)", "10-Q (quarterly reports)"],
+    "small_cap_coverage": "Full coverage of all publicly traded companies",
+    "suitable_for_small_caps": true
+  }
+}
