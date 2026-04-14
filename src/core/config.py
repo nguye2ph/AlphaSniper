@@ -29,6 +29,17 @@ class Settings(BaseSettings):
     # Google Gemini (AI parser - Phase 7)
     gemini_api_key: str = ""
 
+    # Market cap filter (applied to new sources only: TickerTick, Discord)
+    market_cap_limit: int = 100_000_000  # 100M USD
+
+    # Discord listener (NuntioBot scraping)
+    discord_token: str = ""
+    discord_channel_ids: list[str] = []
+    nuntio_bot_name: str = "NuntioBot"
+
+    # Frontend (Vercel URL for CORS)
+    frontend_url: str = ""
+
     # Application
     app_env: str = "development"
     log_level: str = "INFO"

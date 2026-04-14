@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime, timezone
 
 import structlog
+from taskiq.schedule_sources import LabelScheduleSource
 from taskiq_redis import ListQueueBroker
 
 from src.core.config import settings
@@ -13,8 +14,11 @@ logger = structlog.get_logger()
 # Redis-backed broker for task queue
 broker = ListQueueBroker(url=settings.redis_url)
 
+# Schedule source for taskiq scheduler
+schedule_source = LabelScheduleSource(broker)
 
-@broker.task()
+
+@broker.task(schedule=[{"cron": "*/5 * * * *"}])
 async def collect_finnhub_rest():
     """Scheduled: poll Finnhub REST API for market + company news."""
     from src.collectors.finnhub_rest import FinnhubRest
@@ -27,9 +31,9 @@ async def collect_finnhub_rest():
         await collector.teardown()
 
 
-@broker.task()
+@broker.task(schedule=[{"cron": "*/15 * * * *"}])
 async def collect_marketaux():
-    """Scheduled: poll MarketAux API for global news."""
+    """Scheduled: poll MarketAux API every 15 min."""
     from src.collectors.marketaux_rest import MarketAuxRest
 
     collector = MarketAuxRest()
@@ -40,9 +44,9 @@ async def collect_marketaux():
         await collector.teardown()
 
 
-@broker.task()
+@broker.task(schedule=[{"cron": "*/30 * * * *"}])
 async def collect_sec_edgar():
-    """Scheduled: poll SEC EDGAR for 8-K filings."""
+    """Scheduled: poll SEC EDGAR every 30 min."""
     from src.collectors.sec_edgar_rss import SecEdgarCollector
 
     collector = SecEdgarCollector()
@@ -53,13 +57,25 @@ async def collect_sec_edgar():
         await collector.teardown()
 
 
-@broker.task()
+@broker.task(schedule=[{"cron": "*/2 * * * *"}])
+async def collect_tickertick():
+    """Scheduled: poll TickerTick API every 2 min."""
+    from src.collectors.tickertick_rest import TickerTickRest
+
+    collector = TickerTickRest()
+    await collector.setup()
+    try:
+        await collector.collect()
+    finally:
+        await collector.teardown()
+
+
+@broker.task(schedule=[{"cron": "*/2 * * * *"}])
 async def process_raw_articles(batch_size: int = 50):
     """Process unprocessed raw articles: dedup → parse → insert to PostgreSQL."""
     import redis.asyncio as aioredis
-    from sqlalchemy import select
 
-    from src.core.database import async_session_factory, init_mongo, close_mongo
+    from src.core.database import async_session_factory, close_mongo, init_mongo
     from src.core.models.article import Article
     from src.core.models.raw_article import RawArticle
     from src.parsers.dedup import DedupChecker
@@ -103,6 +119,9 @@ async def process_raw_articles(batch_size: int = 50):
                 payload_tickers = _extract_payload_tickers(raw.source, raw.payload)
                 all_tickers = list(dict.fromkeys(payload_tickers + parsed.tickers))
 
+                # Enrich with market cap from payload or cache
+                market_cap = _extract_market_cap(raw.source, raw.payload)
+
                 # Create clean article and commit individually
                 article = Article(
                     id=uuid.uuid4(),
@@ -115,6 +134,7 @@ async def process_raw_articles(batch_size: int = 50):
                     tickers=all_tickers,
                     sentiment=parsed.sentiment,
                     sentiment_label=parsed.sentiment_label,
+                    market_cap=market_cap,
                     category=parsed.category,
                     raw_article_id=str(raw.id),
                     raw_data=raw.payload,
@@ -146,6 +166,10 @@ def _extract_headline(source: str, payload: dict) -> str:
         return payload.get("title", "")
     elif source == "sec_edgar":
         return payload.get("entity_name", "") + " - " + payload.get("form_type", "8-K")
+    elif source == "discord_nuntio":
+        return payload.get("headline", "")
+    elif source == "tickertick":
+        return payload.get("title", "")
     return payload.get("headline", payload.get("title", ""))
 
 
@@ -169,6 +193,11 @@ def _extract_timestamp(source: str, payload: dict) -> datetime:
                 return datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
             except ValueError:
                 pass
+    elif source == "tickertick":
+        ts = payload.get("time", 0)
+        if ts:
+            return datetime.fromtimestamp(ts / 1000, tz=timezone.utc)  # ms epoch
+    # discord_nuntio + fallback: use collected_at
     return datetime.now(timezone.utc)
 
 
@@ -183,4 +212,20 @@ def _extract_payload_tickers(source: str, payload: dict) -> list[str]:
     elif source == "sec_edgar":
         ticker = payload.get("ticker")
         return [ticker] if ticker else []
+    elif source == "discord_nuntio":
+        ticker = payload.get("ticker")
+        return [ticker] if ticker else []
+    elif source == "tickertick":
+        return payload.get("tags", [])
     return []
+
+
+def _extract_market_cap(source: str, payload: dict) -> float | None:
+    """Extract market cap from payload if available."""
+    if source == "discord_nuntio":
+        return payload.get("market_cap")
+    elif source == "marketaux":
+        entities = payload.get("entities", [])
+        mcs = [e.get("market_cap") for e in entities if e.get("market_cap")]
+        return min(mcs) if mcs else None
+    return None
