@@ -49,3 +49,21 @@ export function sentimentChartColor(value: number | null): string {
   if (value < -0.2) return "#ef4444";
   return "#3b82f6";
 }
+
+/** Format market cap to display string: $4.6M, $1.2B, $850K */
+export function formatMarketCap(value: number | null): string {
+  if (value === null) return "N/A";
+  if (value >= 1_000_000_000) return `$${(value / 1_000_000_000).toFixed(1)}B`;
+  if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000) return `$${(value / 1_000).toFixed(0)}K`;
+  return `$${value.toFixed(0)}`;
+}
+
+/** Market cap tier → tailwind text color. Micro=blue, Small=green, Mid=amber, Large=gray */
+export function marketCapColor(value: number | null): string {
+  if (value === null) return "text-zinc-500";
+  if (value < 10_000_000) return "text-blue-400";       // micro <10M
+  if (value < 100_000_000) return "text-green-400";      // small 10-100M
+  if (value < 2_000_000_000) return "text-amber-400";    // mid 100M-2B
+  return "text-zinc-400";                                 // large >2B
+}

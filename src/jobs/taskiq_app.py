@@ -57,9 +57,9 @@ async def collect_sec_edgar():
         await collector.teardown()
 
 
-@broker.task(schedule=[{"cron": "*/2 * * * *"}])
+@broker.task(schedule=[{"cron": "* * * * *"}])
 async def collect_tickertick():
-    """Scheduled: poll TickerTick API every 2 min."""
+    """Scheduled: poll TickerTick API every 1 min (2 req/cycle, within 10 req/min limit)."""
     from src.collectors.tickertick_rest import TickerTickRest
 
     collector = TickerTickRest()

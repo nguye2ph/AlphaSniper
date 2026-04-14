@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Article } from "@/types";
-import { cn, sentimentColor, sentimentBgColor, formatSentiment, formatTimeAgo } from "@/lib/utils";
+import { cn, sentimentColor, sentimentBgColor, formatSentiment, formatMarketCap, marketCapColor, formatTimeAgo } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 
@@ -27,6 +27,11 @@ export function ArticleCard({ article }: { article: Article }) {
             <span className={cn("text-xs font-mono", sentimentColor(article.sentiment_label))}>
               {formatSentiment(article.sentiment)}
             </span>
+            {article.market_cap !== null && (
+              <span className={cn("text-xs font-mono", marketCapColor(article.market_cap))}>
+                [{formatMarketCap(article.market_cap)}]
+              </span>
+            )}
             <span className="text-xs text-zinc-500">{article.source}</span>
             <span className="text-xs text-zinc-600">{formatTimeAgo(article.published_at)}</span>
           </div>

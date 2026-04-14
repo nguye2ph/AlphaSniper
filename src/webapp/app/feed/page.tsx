@@ -2,6 +2,12 @@ import { getArticles } from "@/lib/api";
 import type { Article } from "@/types";
 import { FeedContainer } from "@/components/feed/feed-container";
 
+const MC_TIERS: Record<string, { gte?: number; lte?: number }> = {
+  micro: { lte: 10_000_000 },
+  small: { gte: 10_000_000, lte: 100_000_000 },
+  mid: { gte: 100_000_000, lte: 2_000_000_000 },
+};
+
 export default async function FeedPage({
   searchParams,
 }: {
@@ -12,6 +18,9 @@ export default async function FeedPage({
   const category = params.category;
   const sentiment = params.sentiment;
   const source = params.source;
+  const mcap = params.mcap;
+
+  const mcRange = mcap ? MC_TIERS[mcap] : undefined;
 
   let articles: Article[] = [];
   try {
@@ -21,13 +30,15 @@ export default async function FeedPage({
       source: source || undefined,
       sentiment_gte: sentiment === "bullish" ? 0.2 : undefined,
       sentiment_lte: sentiment === "bearish" ? -0.2 : undefined,
+      market_cap_gte: mcRange?.gte,
+      market_cap_lte: mcRange?.lte,
       limit: 100,
     });
   } catch {
     articles = [];
   }
 
-  const filters = { ticker, category, source, sentiment };
+  const filters = { ticker, category, source, sentiment, mcap };
 
   return (
     <div className="space-y-6">
@@ -38,15 +49,20 @@ export default async function FeedPage({
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2">
-        <FilterLink href="/feed" label="All" active={!ticker && !category && !sentiment} />
+        <FilterLink href="/feed" label="All" active={!ticker && !category && !sentiment && !mcap} />
         <FilterLink href="/feed?sentiment=bullish" label="Bullish" active={sentiment === "bullish"} className="text-green-400" />
         <FilterLink href="/feed?sentiment=bearish" label="Bearish" active={sentiment === "bearish"} className="text-red-400" />
+        <span className="border-l border-zinc-700 mx-1" />
+        <FilterLink href="/feed?mcap=micro" label="Micro <10M" active={mcap === "micro"} className="text-blue-400" />
+        <FilterLink href="/feed?mcap=small" label="Small 10-100M" active={mcap === "small"} className="text-green-400" />
+        <FilterLink href="/feed?mcap=mid" label="Mid 100M-2B" active={mcap === "mid"} className="text-amber-400" />
+        <span className="border-l border-zinc-700 mx-1" />
         <FilterLink href="/feed?category=earnings" label="Earnings" active={category === "earnings"} />
         <FilterLink href="/feed?category=merger" label="M&A" active={category === "merger"} />
         <FilterLink href="/feed?category=insider" label="Insider" active={category === "insider"} />
-        <FilterLink href="/feed?category=legal" label="Legal" active={category === "legal"} />
         <FilterLink href="/feed?source=finnhub" label="Finnhub" active={source === "finnhub"} />
         <FilterLink href="/feed?source=marketaux" label="MarketAux" active={source === "marketaux"} />
+        <FilterLink href="/feed?source=tickertick" label="TickerTick" active={source === "tickertick"} />
       </div>
 
       {/* Client container with auto-refresh + load more */}

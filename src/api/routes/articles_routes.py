@@ -25,6 +25,8 @@ async def list_articles(
     source: str | None = None,
     sentiment_gte: float | None = Query(None, ge=-1.0, le=1.0),
     sentiment_lte: float | None = Query(None, ge=-1.0, le=1.0),
+    market_cap_gte: float | None = Query(None, ge=0),
+    market_cap_lte: float | None = Query(None, ge=0),
     category: str | None = None,
     from_date: datetime | None = None,
     to_date: datetime | None = None,
@@ -43,6 +45,10 @@ async def list_articles(
         query = query.where(Article.sentiment >= sentiment_gte)
     if sentiment_lte is not None:
         query = query.where(Article.sentiment <= sentiment_lte)
+    if market_cap_gte is not None:
+        query = query.where(Article.market_cap >= market_cap_gte)
+    if market_cap_lte is not None:
+        query = query.where(Article.market_cap <= market_cap_lte)
     if category:
         query = query.where(Article.category == category)
     if from_date:

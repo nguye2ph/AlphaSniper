@@ -1,5 +1,5 @@
 import { getArticleStats, getLatestArticles, getSentimentTrend, getTopTickers, getArticlesByHour } from "@/lib/api";
-import { formatSentiment, sentimentColor } from "@/lib/utils";
+import { formatSentiment, formatMarketCap, marketCapColor, sentimentColor } from "@/lib/utils";
 import type { Article, ArticleStats, SentimentTrendPoint, TopTicker, HourlyBucket } from "@/types";
 import { Activity, BarChart3, Newspaper, TrendingUp } from "lucide-react";
 import { SentimentTrendChart } from "@/components/charts/sentiment-trend-chart";
@@ -90,6 +90,11 @@ export default async function DashboardPage() {
               <span className={`shrink-0 mt-0.5 text-xs font-mono ${sentimentColor(a.sentiment_label)}`}>
                 {a.sentiment_label?.charAt(0).toUpperCase() || "N"}
               </span>
+              {a.market_cap !== null && (
+                <span className={`shrink-0 mt-0.5 text-xs font-mono ${marketCapColor(a.market_cap)}`}>
+                  {formatMarketCap(a.market_cap)}
+                </span>
+              )}
               <span className="truncate">{a.headline}</span>
             </div>
           ))}

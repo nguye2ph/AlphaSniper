@@ -69,6 +69,8 @@ export interface ArticleFilters {
   source?: string;
   sentiment_gte?: number;
   sentiment_lte?: number;
+  market_cap_gte?: number;
+  market_cap_lte?: number;
   category?: string;
   from_date?: string;
   to_date?: string;

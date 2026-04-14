@@ -1,7 +1,7 @@
 import { getTickerNews, getTickerSentimentHistory } from "@/lib/api";
 import type { Article, TickerSentimentPoint } from "@/types";
 import { ArticleCard } from "@/components/feed/article-card";
-import { formatSentiment, sentimentColor } from "@/lib/utils";
+import { formatSentiment, formatMarketCap, marketCapColor, sentimentColor } from "@/lib/utils";
 import { SentimentTrendChart } from "@/components/charts/sentiment-trend-chart";
 import { CategoryDonutChart } from "@/components/charts/category-donut-chart";
 
@@ -38,6 +38,9 @@ export default async function TickerPage({
   const bullishCount = articles.filter((a) => a.sentiment_label === "bullish").length;
   const bearishCount = articles.filter((a) => a.sentiment_label === "bearish").length;
 
+  // Market cap: use first non-null value from articles
+  const marketCap = articles.find((a) => a.market_cap !== null)?.market_cap ?? null;
+
   // Category distribution for donut
   const categoryCounts: Record<string, number> = {};
   articles.forEach((a) => {
@@ -57,7 +60,8 @@ export default async function TickerPage({
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <StatCard label="Market Cap" value={formatMarketCap(marketCap)} className={marketCapColor(marketCap)} />
         <StatCard label="Avg Sentiment" value={formatSentiment(avgSentiment)} className={sentimentColor(
           avgSentiment !== null ? (avgSentiment > 0.2 ? "bullish" : avgSentiment < -0.2 ? "bearish" : null) : null
         )} />
