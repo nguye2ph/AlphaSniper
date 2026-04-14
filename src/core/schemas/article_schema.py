@@ -46,3 +46,34 @@ class ArticleStats(BaseModel):
     by_source: dict[str, int] = {}
     avg_sentiment: float | None = None
     articles_today: int = 0
+
+
+class SentimentTrendPoint(BaseModel):
+    """Single time-bucketed sentiment data point."""
+
+    timestamp: datetime
+    avg_sentiment: float
+    count: int
+
+
+class TopTicker(BaseModel):
+    """Ticker ranked by article volume."""
+
+    symbol: str
+    count: int
+    avg_sentiment: float | None = None
+
+
+class HourlyBucket(BaseModel):
+    """Article count for a single hour bucket."""
+
+    hour: datetime
+    count: int
+
+
+class TickerSentimentPoint(BaseModel):
+    """Single article sentiment data point for a ticker."""
+
+    timestamp: datetime
+    sentiment: float | None
+    headline: str

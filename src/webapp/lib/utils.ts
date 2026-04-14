@@ -43,7 +43,8 @@ export function formatTimeAgo(dateStr: string): string {
 }
 
 /** Sentiment value → chart color */
-export function sentimentChartColor(value: number): string {
+export function sentimentChartColor(value: number | null): string {
+  if (value === null) return "#3b82f6";
   if (value > 0.2) return "#22c55e";
   if (value < -0.2) return "#ef4444";
   return "#3b82f6";

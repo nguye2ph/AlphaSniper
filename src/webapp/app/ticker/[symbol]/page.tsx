@@ -1,7 +1,9 @@
-import { getTickerNews } from "@/lib/api";
-import type { Article } from "@/types";
+import { getTickerNews, getTickerSentimentHistory } from "@/lib/api";
+import type { Article, TickerSentimentPoint } from "@/types";
 import { ArticleCard } from "@/components/feed/article-card";
 import { formatSentiment, sentimentColor } from "@/lib/utils";
+import { SentimentTrendChart } from "@/components/charts/sentiment-trend-chart";
+import { CategoryDonutChart } from "@/components/charts/category-donut-chart";
 
 export default async function TickerPage({
   params,
@@ -12,11 +14,23 @@ export default async function TickerPage({
   const upperSymbol = symbol.toUpperCase();
 
   let articles: Article[] = [];
+  let rawSentimentHistory: TickerSentimentPoint[] = [];
   try {
-    articles = await getTickerNews(upperSymbol, 50);
+    [articles, rawSentimentHistory] = await Promise.all([
+      getTickerNews(upperSymbol, 50),
+      getTickerSentimentHistory(upperSymbol),
+    ]);
   } catch {
     articles = [];
+    rawSentimentHistory = [];
   }
+
+  // Transform ticker sentiment points to trend chart format
+  const sentimentHistory = rawSentimentHistory.map((p) => ({
+    timestamp: p.timestamp,
+    avg_sentiment: p.sentiment ?? 0,
+    count: 1,
+  }));
 
   // Compute stats from articles
   const sentiments = articles.filter((a) => a.sentiment !== null).map((a) => a.sentiment!);
@@ -24,12 +38,15 @@ export default async function TickerPage({
   const bullishCount = articles.filter((a) => a.sentiment_label === "bullish").length;
   const bearishCount = articles.filter((a) => a.sentiment_label === "bearish").length;
 
-  // Category breakdown
-  const categories: Record<string, number> = {};
+  // Category distribution for donut
+  const categoryCounts: Record<string, number> = {};
   articles.forEach((a) => {
     const cat = a.category || "general";
-    categories[cat] = (categories[cat] || 0) + 1;
+    categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
   });
+  const categoryData = Object.entries(categoryCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([name, value]) => ({ name, value }));
 
   return (
     <div className="space-y-6">
@@ -49,16 +66,16 @@ export default async function TickerPage({
         <StatCard label="Total" value={articles.length} />
       </div>
 
-      {/* Category breakdown */}
-      <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
-        <h2 className="text-sm font-medium text-zinc-400 mb-3">Category Breakdown</h2>
-        <div className="flex flex-wrap gap-3">
-          {Object.entries(categories).sort((a, b) => b[1] - a[1]).map(([cat, count]) => (
-            <div key={cat} className="flex items-center gap-2 text-sm">
-              <span className="capitalize">{cat}</span>
-              <span className="text-xs text-zinc-500 font-mono">{count}</span>
-            </div>
-          ))}
+      {/* Sentiment trend + Category donut */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+          <h2 className="text-sm font-medium text-zinc-400 mb-3">Sentiment Over Time</h2>
+          <SentimentTrendChart data={sentimentHistory} />
+        </div>
+
+        <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+          <h2 className="text-sm font-medium text-zinc-400 mb-3">Category Breakdown</h2>
+          <CategoryDonutChart data={categoryData} />
         </div>
       </div>
 

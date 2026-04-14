@@ -1,21 +1,21 @@
-import { getArticleStats, getSources } from "@/lib/api";
-import type { Source } from "@/types";
+import { getArticleStats } from "@/lib/api";
+import { SourceArticlesChart } from "@/components/charts/source-articles-chart";
 
 export default async function SourcesPage() {
-  let sources: Source[] = [];
   let stats;
   try {
-    [sources, stats] = await Promise.all([getSources(), getArticleStats()]);
+    stats = await getArticleStats();
   } catch {
     stats = { total_count: 0, by_source: {}, avg_sentiment: null, articles_today: 0 };
   }
 
-  // Merge source metadata with article counts from stats
   const sourceData = [
     { name: "finnhub", type: "api + websocket", url: "https://finnhub.io", count: stats.by_source["finnhub"] || 0 },
     { name: "marketaux", type: "api", url: "https://marketaux.com", count: stats.by_source["marketaux"] || 0 },
     { name: "sec_edgar", type: "rss", url: "https://sec.gov", count: stats.by_source["sec_edgar"] || 0 },
   ];
+
+  const chartData = sourceData.map((s) => ({ source: s.name, count: s.count }));
 
   return (
     <div className="space-y-6">
@@ -26,7 +26,7 @@ export default async function SourcesPage() {
         {sourceData.map((s) => (
           <div key={s.name} className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-medium capitalize">{s.name.replace("_", " ")}</h3>
+              <h3 className="font-medium capitalize">{s.name.replaceAll("_", " ")}</h3>
               <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">
                 active
               </span>
@@ -51,6 +51,12 @@ export default async function SourcesPage() {
         ))}
       </div>
 
+      {/* Articles by source chart */}
+      <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+        <h2 className="text-sm font-medium text-zinc-400 mb-3">Articles by Source</h2>
+        <SourceArticlesChart data={chartData} />
+      </div>
+
       {/* Summary table */}
       <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
         <h2 className="text-sm font-medium text-zinc-400 mb-3">Collection Summary</h2>
@@ -65,7 +71,7 @@ export default async function SourcesPage() {
           <tbody>
             {sourceData.map((s) => (
               <tr key={s.name} className="border-b border-zinc-800/50">
-                <td className="py-2 capitalize">{s.name.replace("_", " ")}</td>
+                <td className="py-2 capitalize">{s.name.replaceAll("_", " ")}</td>
                 <td className="text-right font-mono">{s.count}</td>
                 <td className="text-right font-mono text-zinc-500">
                   {stats.total_count > 0 ? ((s.count / stats.total_count) * 100).toFixed(1) : 0}%

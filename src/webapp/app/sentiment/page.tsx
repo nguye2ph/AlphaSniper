@@ -1,23 +1,22 @@
-import { getArticles, getArticleStats } from "@/lib/api";
+import { getArticles, getArticleStats, getSentimentTrend } from "@/lib/api";
 import { formatSentiment, sentimentColor } from "@/lib/utils";
-import type { Article, ArticleStats } from "@/types";
+import type { Article, ArticleStats, SentimentTrendPoint } from "@/types";
+import { SentimentTrendChart } from "@/components/charts/sentiment-trend-chart";
+import { SentimentDistributionChart } from "@/components/charts/sentiment-distribution-chart";
 
 export default async function SentimentPage() {
   let stats: ArticleStats = { total_count: 0, by_source: {}, avg_sentiment: null, articles_today: 0 };
   let articles: Article[] = [];
+  let sentimentTrend: SentimentTrendPoint[] = [];
   try {
-    [stats, articles] = await Promise.all([
+    [stats, articles, sentimentTrend] = await Promise.all([
       getArticleStats(),
       getArticles({ limit: 200 }),
+      getSentimentTrend(7),
     ]);
   } catch {
     // defaults already set
   }
-
-  // Sentiment distribution
-  const bullish = articles.filter((a) => a.sentiment_label === "bullish");
-  const bearish = articles.filter((a) => a.sentiment_label === "bearish");
-  const neutral = articles.filter((a) => a.sentiment_label === "neutral");
 
   // Top movers: tickers with most extreme avg sentiment
   const tickerSentiments: Record<string, number[]> = {};
@@ -41,7 +40,7 @@ export default async function SentimentPage() {
     .slice(0, 10);
 
   const sentimentValue = stats.avg_sentiment ?? 0;
-  const gaugePercent = ((sentimentValue + 1) / 2) * 100; // -1..1 -> 0..100
+  const gaugePercent = ((sentimentValue + 1) / 2) * 100;
 
   return (
     <div className="space-y-6">
@@ -55,7 +54,6 @@ export default async function SentimentPage() {
         )}`}>
           {formatSentiment(stats.avg_sentiment)}
         </p>
-        {/* Simple bar gauge */}
         <div className="mt-4 mx-auto max-w-md">
           <div className="h-3 rounded-full bg-zinc-800 relative overflow-hidden">
             <div className="absolute left-0 top-0 h-full bg-gradient-to-r from-red-500 via-zinc-500 to-green-500 opacity-30 w-full" />
@@ -70,19 +68,16 @@ export default async function SentimentPage() {
         </div>
       </div>
 
-      {/* Distribution */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4 text-center">
-          <p className="text-2xl font-bold text-green-500">{bullish.length}</p>
-          <p className="text-xs text-zinc-400">Bullish</p>
+      {/* Trend + Distribution charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+          <h2 className="text-sm font-medium text-zinc-400 mb-3">Sentiment Trend (7d)</h2>
+          <SentimentTrendChart data={sentimentTrend} />
         </div>
-        <div className="rounded-lg border border-zinc-700 bg-zinc-900 p-4 text-center">
-          <p className="text-2xl font-bold text-zinc-400">{neutral.length}</p>
-          <p className="text-xs text-zinc-400">Neutral</p>
-        </div>
-        <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-4 text-center">
-          <p className="text-2xl font-bold text-red-500">{bearish.length}</p>
-          <p className="text-xs text-zinc-400">Bearish</p>
+
+        <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+          <h2 className="text-sm font-medium text-zinc-400 mb-3">Sentiment Distribution</h2>
+          <SentimentDistributionChart articles={articles} />
         </div>
       </div>
 

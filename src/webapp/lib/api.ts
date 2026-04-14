@@ -1,6 +1,6 @@
 /** FastAPI client — fetch wrapper with typed responses */
 
-import type { Article, ArticleFilters, ArticleStats, HourlyBucket, SentimentTrendPoint, Source, Ticker, TopTicker } from "@/types";
+import type { Article, ArticleFilters, ArticleStats, HourlyBucket, SentimentTrendPoint, Source, Ticker, TickerSentimentPoint, TopTicker } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8200";
 
@@ -43,8 +43,8 @@ export const getTickers = () => fetchApi<Ticker[]>("/api/tickers");
 export const getTickerNews = (symbol: string, limit = 20) =>
   fetchApi<Article[]>(`/api/tickers/${symbol}/news`, { limit });
 
-export const getTickerSentimentHistory = (symbol: string) =>
-  fetchApi<SentimentTrendPoint[]>(`/api/tickers/${symbol}/sentiment-history`);
+export const getTickerSentimentHistory = (symbol: string, days = 7) =>
+  fetchApi<TickerSentimentPoint[]>(`/api/tickers/${symbol}/sentiment-history`, { days });
 
 /** Sources */
 export const getSources = () => fetchApi<Source[]>("/api/sources");

@@ -1,6 +1,6 @@
 import { getArticles } from "@/lib/api";
 import type { Article } from "@/types";
-import { ArticleCard } from "@/components/feed/article-card";
+import { FeedContainer } from "@/components/feed/feed-container";
 
 export default async function FeedPage({
   searchParams,
@@ -27,6 +27,8 @@ export default async function FeedPage({
     articles = [];
   }
 
+  const filters = { ticker, category, source, sentiment };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -47,14 +49,8 @@ export default async function FeedPage({
         <FilterLink href="/feed?source=marketaux" label="MarketAux" active={source === "marketaux"} />
       </div>
 
-      {/* Article list */}
-      <div className="space-y-3">
-        {articles.length === 0 ? (
-          <p className="text-zinc-500 text-center py-12">No articles found</p>
-        ) : (
-          articles.map((a) => <ArticleCard key={a.id} article={a} />)
-        )}
-      </div>
+      {/* Client container with auto-refresh + load more */}
+      <FeedContainer initialArticles={articles} filters={filters} />
     </div>
   );
 }

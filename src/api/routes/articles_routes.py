@@ -3,12 +3,18 @@
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.deps import get_db
 from src.core.models.article import Article
-from src.core.schemas.article_schema import ArticleResponse, ArticleStats
+from src.core.schemas.article_schema import (
+    ArticleResponse,
+    ArticleStats,
+    HourlyBucket,
+    SentimentTrendPoint,
+    TopTicker,
+)
 
 router = APIRouter(prefix="/api/articles", tags=["articles"])
 
@@ -86,3 +92,65 @@ async def article_stats(db: AsyncSession = Depends(get_db)):
         avg_sentiment=round(avg_sent, 3) if avg_sent else None,
         articles_today=today_count or 0,
     )
+
+
+@router.get("/sentiment-trend", response_model=list[SentimentTrendPoint])
+async def sentiment_trend(
+    days: int = Query(7, ge=1, le=30),
+    db: AsyncSession = Depends(get_db),
+):
+    """Hourly average sentiment over the last N days."""
+    rows = await db.execute(
+        text(
+            "SELECT date_trunc('hour', published_at) AS ts, "
+            "avg(sentiment) AS avg_s, count(*) AS cnt "
+            "FROM articles "
+            "WHERE published_at >= now() - make_interval(days => :days) "
+            "GROUP BY ts ORDER BY ts"
+        ).bindparams(days=days)
+    )
+    return [
+        SentimentTrendPoint(timestamp=r.ts, avg_sentiment=round(r.avg_s, 4), count=r.cnt)
+        for r in rows.all()
+        if r.avg_s is not None
+    ]
+
+
+@router.get("/top-tickers", response_model=list[TopTicker])
+async def top_tickers(
+    limit: int = Query(10, ge=1, le=50),
+    db: AsyncSession = Depends(get_db),
+):
+    """Most-mentioned tickers with average sentiment."""
+    rows = await db.execute(
+        text(
+            "SELECT unnest(tickers) AS symbol, count(*) AS cnt, avg(sentiment) AS avg_s "
+            "FROM articles "
+            "GROUP BY symbol ORDER BY cnt DESC LIMIT :limit"
+        ).bindparams(limit=limit)
+    )
+    return [
+        TopTicker(
+            symbol=r.symbol,
+            count=r.cnt,
+            avg_sentiment=round(r.avg_s, 4) if r.avg_s is not None else None,
+        )
+        for r in rows.all()
+    ]
+
+
+@router.get("/by-hour", response_model=list[HourlyBucket])
+async def articles_by_hour(
+    hours: int = Query(24, ge=1, le=168),
+    db: AsyncSession = Depends(get_db),
+):
+    """Article counts bucketed by hour for the last N hours."""
+    rows = await db.execute(
+        text(
+            "SELECT date_trunc('hour', published_at) AS hour, count(*) AS cnt "
+            "FROM articles "
+            "WHERE published_at >= now() - make_interval(hours => :hours) "
+            "GROUP BY hour ORDER BY hour"
+        ).bindparams(hours=hours)
+    )
+    return [HourlyBucket(hour=r.hour, count=r.cnt) for r in rows.all()]

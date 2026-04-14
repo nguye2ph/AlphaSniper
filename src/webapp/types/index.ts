@@ -44,13 +44,19 @@ export interface Source {
 export interface SentimentTrendPoint {
   timestamp: string;
   avg_sentiment: number;
-  article_count: number;
+  count: number;
 }
 
 export interface TopTicker {
   symbol: string;
   count: number;
-  avg_sentiment: number;
+  avg_sentiment: number | null;
+}
+
+export interface TickerSentimentPoint {
+  timestamp: string;
+  sentiment: number | null;
+  headline: string;
 }
 
 export interface HourlyBucket {
