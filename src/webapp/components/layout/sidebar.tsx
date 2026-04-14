@@ -9,6 +9,7 @@ import {
   TrendingUp,
   Activity,
   Server,
+  Settings,
   ChevronLeft,
   ChevronRight,
   Crosshair,
@@ -20,6 +21,7 @@ const navItems = [
   { href: "/feed", label: "News Feed", icon: Newspaper },
   { href: "/sentiment", label: "Sentiment", icon: TrendingUp },
   { href: "/sources", label: "Sources", icon: Server },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 export function Sidebar() {

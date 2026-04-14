@@ -6,6 +6,7 @@ import { SentimentTrendChart } from "@/components/charts/sentiment-trend-chart";
 import { ArticlesPerHourChart } from "@/components/charts/articles-per-hour-chart";
 import { TopTickersChart } from "@/components/charts/top-tickers-chart";
 import { CategoryDonutChart } from "@/components/charts/category-donut-chart";
+import { KpiCard } from "@/components/dashboard/kpi-card";
 
 async function getData() {
   try {
@@ -47,7 +48,7 @@ export default async function DashboardPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard title="Articles Today" value={stats.articles_today} icon={<Newspaper className="h-5 w-5" />} />
+        <KpiCard title="Articles Today" value={stats.articles_today} icon={<Newspaper className="h-5 w-5" />} live />
         <KpiCard title="Total Articles" value={stats.total_count} icon={<BarChart3 className="h-5 w-5" />} />
         <KpiCard
           title="Avg Sentiment"
@@ -104,23 +105,9 @@ export default async function DashboardPage() {
   );
 }
 
-function KpiCard({ title, value, icon, valueClass = "text-white" }: {
-  title: string; value: string | number; icon: React.ReactNode; valueClass?: string;
-}) {
-  return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-zinc-400">{title}</span>
-        <span className="text-zinc-500">{icon}</span>
-      </div>
-      <p className={`text-2xl font-bold mt-2 ${valueClass}`}>{value}</p>
-    </div>
-  );
-}
-
 function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+    <div className="glass-card rounded-lg p-4">
       <h2 className="text-sm font-medium text-zinc-400 mb-3">{title}</h2>
       {children}
     </div>

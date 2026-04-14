@@ -21,6 +21,10 @@ class ArticleResponse(BaseModel):
     sentiment_label: str | None = None
     market_cap: float | None = None
     category: str | None = None
+    content: str | None = None
+    key_points: list[str] | None = None
+    image_url: str | None = None
+    author: str | None = None
 
     model_config = {"from_attributes": True}
 

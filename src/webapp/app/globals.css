@@ -128,3 +128,26 @@
     @apply font-sans;
   }
 }
+
+/* Glassmorphism card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Sentiment neon glows */
+.neon-green { box-shadow: 0 0 15px rgba(34, 197, 94, 0.15); }
+.neon-red { box-shadow: 0 0 15px rgba(239, 68, 68, 0.15); }
+
+/* Pulsing live dot */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.5); }
+}
+.pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .pulse-dot { animation: none; }
+}

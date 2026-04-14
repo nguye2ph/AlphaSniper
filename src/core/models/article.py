@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, Float, Index, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, Float, Index, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -43,10 +43,18 @@ class Article(Base):
     # Backup: store raw API response
     raw_data: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
 
+    # Scraped content
+    content: Mapped[str | None] = mapped_column(Text, nullable=True)
+    key_points: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    author: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    content_scraped: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+
     __table_args__ = (
         UniqueConstraint("source", "source_id", name="uq_article_source_id"),
         Index("ix_article_published_at", "published_at"),
         Index("ix_article_tickers", "tickers", postgresql_using="gin"),
         Index("ix_article_sentiment", "sentiment"),
         Index("ix_article_source", "source"),
+        Index("ix_article_content_scraped", "content_scraped"),
     )

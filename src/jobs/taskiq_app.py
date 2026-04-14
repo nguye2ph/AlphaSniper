@@ -70,6 +70,47 @@ async def collect_tickertick():
         await collector.teardown()
 
 
+@broker.task(schedule=[{"cron": "*/5 * * * *"}])
+async def scrape_unscraped_articles(batch_size: int = 20):
+    """Scrape unscraped article URLs for content extraction."""
+    import asyncio
+
+    from sqlalchemy import select, update
+
+    from src.core.database import async_session_factory
+    from src.core.models.article import Article
+    from src.parsers.content_scraper import fetch_article_content
+
+    async with async_session_factory() as session:
+        result = await session.execute(
+            select(Article)
+            .where(Article.content_scraped == False)  # noqa: E712
+            .order_by(Article.published_at.desc())
+            .limit(batch_size)
+        )
+        articles = result.scalars().all()
+        if not articles:
+            return
+
+        logger.info("scraping_batch", count=len(articles))
+        scraped = 0
+        for article in articles:
+            await asyncio.sleep(1.0)
+            content_result = await fetch_article_content(article.url)
+            values: dict = {"content_scraped": True}
+            if content_result and content_result.body:
+                values.update(
+                    content=content_result.body,
+                    image_url=content_result.image_url,
+                    author=content_result.author,
+                )
+                scraped += 1
+            await session.execute(update(Article).where(Article.id == article.id).values(**values))
+            await session.commit()
+
+        logger.info("scrape_batch_done", scraped=scraped, total=len(articles))
+
+
 @broker.task(schedule=[{"cron": "*/2 * * * *"}])
 async def process_raw_articles(batch_size: int = 50):
     """Process unprocessed raw articles: dedup → parse → insert to PostgreSQL."""
@@ -143,6 +184,10 @@ async def process_raw_articles(batch_size: int = 50):
                     session.add(article)
                     await session.commit()
                     processed += 1
+                    # Discord alert for high-sentiment articles
+                    from src.jobs.discord_notify import send_discord_alert, should_notify
+                    if should_notify(article):
+                        await send_discord_alert(article)
                 except Exception as e:
                     await session.rollback()
                     logger.warning("article_insert_error", source_id=raw.source_id, error=str(e)[:100])

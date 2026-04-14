@@ -37,6 +37,10 @@ class Settings(BaseSettings):
     discord_channel_ids: list[str] = []
     nuntio_bot_name: str = "NuntioBot"
 
+    # Discord webhook (outbound alerts)
+    discord_webhook_url: str = ""  # Empty = disabled
+    discord_sentiment_threshold: float = 0.5
+
     # Frontend (Vercel URL for CORS)
     frontend_url: str = ""
 

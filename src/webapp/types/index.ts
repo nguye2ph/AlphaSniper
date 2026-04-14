@@ -13,6 +13,10 @@ export interface Article {
   sentiment_label: string | null;
   market_cap: number | null;
   category: string | null;
+  content: string | null;
+  key_points: string[] | null;
+  image_url: string | null;
+  author: string | null;
 }
 
 export interface ArticleStats {
