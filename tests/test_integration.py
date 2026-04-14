@@ -10,7 +10,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from src.core.config import settings
-from src.core.database import init_mongo, close_mongo
+from src.core.database import close_mongo, init_mongo
 from src.core.models.raw_article import RawArticle
 from src.parsers.dedup import DedupChecker
 from src.parsers.headline_parser import parse_headline

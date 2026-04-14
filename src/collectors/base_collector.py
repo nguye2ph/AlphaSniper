@@ -1,10 +1,11 @@
 """Abstract base class for all data source collectors."""
 
 import abc
-import structlog
 from datetime import datetime, timezone
 
-from src.core.database import init_mongo, close_mongo
+import structlog
+
+from src.core.database import close_mongo, init_mongo
 from src.core.models.raw_article import RawArticle
 
 logger = structlog.get_logger()

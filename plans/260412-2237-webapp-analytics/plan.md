@@ -1,7 +1,7 @@
 ---
 title: "AlphaSniper Analytics Webapp"
 description: "Next.js dashboard for stock news visualization and analysis"
-status: pending
+status: completed
 priority: P1
 effort: 12h
 branch: main
@@ -27,11 +27,11 @@ FastAPI (8200) <-- fetch <-- Next.js SSR (8210) --> Browser (interactive charts)
 
 | Phase | Name | Status | Effort | File |
 |-------|------|--------|--------|------|
-| 1 | Project Setup + Layout | pending | 2.5h | [phase-01](phase-01-setup-layout.md) |
-| 2 | Dashboard Page | pending | 3.5h | [phase-02](phase-02-dashboard.md) |
-| 3 | News Feed | pending | 2.5h | [phase-03](phase-03-news-feed.md) |
-| 4 | Ticker Detail | pending | 2h | [phase-04](phase-04-ticker-detail.md) |
-| 5 | Sentiment + Sources | pending | 2h | [phase-05](phase-05-sentiment-sources.md) |
+| 1 | Project Setup + Layout | **completed** | 2.5h | [phase-01](phase-01-setup-layout.md) |
+| 2 | Dashboard Page | **completed** | 3.5h | [phase-02](phase-02-dashboard.md) |
+| 3 | News Feed | **completed** | 2.5h | [phase-03](phase-03-news-feed.md) |
+| 4 | Ticker Detail | **completed** | 2h | [phase-04](phase-04-ticker-detail.md) |
+| 5 | Sentiment + Sources | **completed** | 2h | [phase-05](phase-05-sentiment-sources.md) |
 
 ## Key Dependencies
 

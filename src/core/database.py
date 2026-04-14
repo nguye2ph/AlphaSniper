@@ -7,7 +7,6 @@ from sqlalchemy.orm import DeclarativeBase
 
 from src.core.config import settings
 
-
 # --- PostgreSQL (clean zone) ---
 
 engine = create_async_engine(

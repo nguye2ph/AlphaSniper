@@ -1,7 +1,7 @@
 """Finnhub REST poller — market news + company news with rate limiting."""
 
 import asyncio
-from datetime import date, datetime, timezone
+from datetime import date
 
 import httpx
 import structlog

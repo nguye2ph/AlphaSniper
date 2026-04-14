@@ -1,7 +1,6 @@
 """MarketAux REST poller — global news aggregation with sentiment scoring."""
 
 import asyncio
-from datetime import datetime, timezone
 
 import httpx
 import structlog

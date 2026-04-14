@@ -5,7 +5,6 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-import feedparser
 import httpx
 import structlog
 
@@ -86,7 +85,7 @@ class SecEdgarCollector(BaseCollector):
         }
 
         try:
-            resp = await client.get(f"https://efts.sec.gov/LATEST/search-index", params=params)
+            resp = await client.get("https://efts.sec.gov/LATEST/search-index", params=params)
             resp.raise_for_status()
         except httpx.HTTPStatusError as e:
             logger.error("edgar_search_error", status=e.response.status_code)
