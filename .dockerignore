@@ -1,0 +1,14 @@
+.git
+.venv
+__pycache__
+*.pyc
+node_modules
+src/webapp/node_modules
+src/webapp/.next
+.env
+pytest_cache
+ruff_cache
+repomix-output.xml
+test-results
+data/
+research/api-samples/

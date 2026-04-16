@@ -56,7 +56,11 @@ export function FeedContainer({ initialArticles, filters }: Props) {
     setLoadingMore(true);
     try {
       const more = await fetchArticles(filters, articles.length);
-      setArticles((prev) => [...prev, ...more]);
+      setArticles((prev) => {
+        const existingIds = new Set(prev.map((a) => a.id));
+        const uniqueMore = more.filter((a) => !existingIds.has(a.id));
+        return [...prev, ...uniqueMore];
+      });
     } catch {
       // silently fail
     } finally {

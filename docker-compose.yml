@@ -145,7 +145,7 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-    command: uv run taskiq scheduler src.jobs.taskiq_app:broker --source src.jobs.taskiq_app:schedule_source
+    command: uv run taskiq scheduler src.jobs.taskiq_app:scheduler
     restart: unless-stopped
 
 volumes:

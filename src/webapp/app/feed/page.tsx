@@ -3,9 +3,10 @@ import type { Article } from "@/types";
 import { FeedContainer } from "@/components/feed/feed-container";
 
 const MC_TIERS: Record<string, { gte?: number; lte?: number }> = {
-  micro: { lte: 10_000_000 },
-  small: { gte: 10_000_000, lte: 100_000_000 },
-  mid: { gte: 100_000_000, lte: 2_000_000_000 },
+  micro: { lte: 250_000_000 },
+  small: { gte: 250_000_000, lte: 2_000_000_000 },
+  mid: { gte: 2_000_000_000, lte: 10_000_000_000 },
+  large: { gte: 10_000_000_000 },
 };
 
 export default async function FeedPage({
@@ -53,9 +54,10 @@ export default async function FeedPage({
         <FilterLink href="/feed?sentiment=bullish" label="Bullish" active={sentiment === "bullish"} className="text-green-400" />
         <FilterLink href="/feed?sentiment=bearish" label="Bearish" active={sentiment === "bearish"} className="text-red-400" />
         <span className="border-l border-zinc-700 mx-1" />
-        <FilterLink href="/feed?mcap=micro" label="Micro <10M" active={mcap === "micro"} className="text-blue-400" />
-        <FilterLink href="/feed?mcap=small" label="Small 10-100M" active={mcap === "small"} className="text-green-400" />
-        <FilterLink href="/feed?mcap=mid" label="Mid 100M-2B" active={mcap === "mid"} className="text-amber-400" />
+        <FilterLink href="/feed?mcap=micro" label="Micro <250M" active={mcap === "micro"} className="text-blue-400" />
+        <FilterLink href="/feed?mcap=small" label="Small 250M-2B" active={mcap === "small"} className="text-green-400" />
+        <FilterLink href="/feed?mcap=mid" label="Mid 2B-10B" active={mcap === "mid"} className="text-amber-400" />
+        <FilterLink href="/feed?mcap=large" label="Large >10B" active={mcap === "large"} className="text-purple-400" />
         <span className="border-l border-zinc-700 mx-1" />
         <FilterLink href="/feed?category=earnings" label="Earnings" active={category === "earnings"} />
         <FilterLink href="/feed?category=merger" label="M&A" active={category === "merger"} />

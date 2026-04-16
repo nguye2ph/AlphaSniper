@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime, timezone
 
 import structlog
+from taskiq import TaskiqScheduler
 from taskiq.schedule_sources import LabelScheduleSource
 from taskiq_redis import ListQueueBroker
 
@@ -16,6 +17,7 @@ broker = ListQueueBroker(url=settings.redis_url)
 
 # Schedule source for taskiq scheduler
 schedule_source = LabelScheduleSource(broker)
+scheduler = TaskiqScheduler(broker=broker, sources=[schedule_source])
 
 
 @broker.task(schedule=[{"cron": "*/5 * * * *"}])
@@ -120,11 +122,14 @@ async def process_raw_articles(batch_size: int = 50):
     from src.core.models.article import Article
     from src.core.models.raw_article import RawArticle
     from src.parsers.dedup import DedupChecker
-    from src.parsers.headline_parser import parse_headline
+    from src.parsers.gemini_parser import GeminiParser
+    from src.collectors.market_cap_cache import MarketCapCache
 
     await init_mongo()
     redis_client = aioredis.from_url(settings.redis_url, decode_responses=True)
     dedup = DedupChecker(redis_client)
+    mcap_cache = MarketCapCache(redis_client, settings.finnhub_api_key)
+    gemini = GeminiParser()
 
     try:
         # Fetch unprocessed raw articles
@@ -153,8 +158,8 @@ async def process_raw_articles(batch_size: int = 50):
                 url = raw.payload.get("url", "")
                 published_at = _extract_timestamp(raw.source, raw.payload)
 
-                # Parse headline
-                parsed = parse_headline(headline)
+                # Parse headline with Gemini AI
+                parsed = await gemini.parse_headline(headline)
 
                 # Also use tickers from payload if available
                 payload_tickers = _extract_payload_tickers(raw.source, raw.payload)
@@ -162,6 +167,13 @@ async def process_raw_articles(batch_size: int = 50):
 
                 # Enrich with market cap from payload or cache
                 market_cap = _extract_market_cap(raw.source, raw.payload)
+                if market_cap is None and all_tickers:
+                    # Lookup many tickers but take the first valid MC (usually lead ticker)
+                    for ticker in all_tickers:
+                        mc = await mcap_cache.get_market_cap(ticker)
+                        if mc:
+                            market_cap = mc
+                            break
 
                 # Create clean article and commit individually
                 article = Article(

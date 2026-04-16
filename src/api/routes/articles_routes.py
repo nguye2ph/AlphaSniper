@@ -35,7 +35,7 @@ async def list_articles(
     db: AsyncSession = Depends(get_db),
 ):
     """List articles with optional filters."""
-    query = select(Article).order_by(Article.published_at.desc())
+    query = select(Article).order_by(Article.published_at.desc(), Article.id.desc())
 
     if ticker:
         query = query.where(Article.tickers.any(ticker.upper()))

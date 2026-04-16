@@ -37,6 +37,8 @@ class ArticleListParams(BaseModel):
     sentiment_gte: float | None = Field(None, ge=-1.0, le=1.0)
     sentiment_lte: float | None = Field(None, ge=-1.0, le=1.0)
     category: str | None = None
+    market_cap_gte: float | None = Field(None, ge=0)
+    market_cap_lte: float | None = Field(None, ge=0)
     from_date: datetime | None = None
     to_date: datetime | None = None
     limit: int = Field(50, ge=1, le=200)
