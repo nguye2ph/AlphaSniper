@@ -69,10 +69,10 @@ async def test_delete_config(redis):
 @pytest.mark.asyncio
 async def test_seed_defaults_no_overwrite(redis):
     count = await seed_defaults(redis)
-    assert count == 11
+    assert count == 14
 
     configs = await list_configs(redis)
-    assert len(configs) == 11
+    assert len(configs) == 14
 
     # Second seed should skip existing
     count2 = await seed_defaults(redis)

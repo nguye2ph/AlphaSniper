@@ -52,6 +52,9 @@ class Settings(BaseSettings):
         "https://www.cnbc.com/id/100003114/device/rss/rss.html",
     ]
 
+    # Unusual Whales (options flow - Phase 3, experimental)
+    unusual_whales_api_key: str = ""
+
     # Discord webhook (outbound alerts)
     discord_webhook_url: str = ""  # Empty = disabled
     discord_sentiment_threshold: float = 0.5

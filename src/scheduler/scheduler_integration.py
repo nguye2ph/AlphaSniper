@@ -35,6 +35,10 @@ TASK_NAME_MAP: dict[str, str] = {
     "openinsider": "src.jobs.taskiq_app:collect_openinsider",
     "earnings_calendar": "src.jobs.taskiq_app:collect_earnings",
     "rss_feeds": "src.jobs.taskiq_app:collect_rss_feeds",
+    # Phase 3: Tier 2 sources
+    "stocktwits": "src.jobs.taskiq_app:collect_stocktwits",
+    "ortex": "src.jobs.taskiq_app:collect_ortex",
+    "unusual_whales": "src.jobs.taskiq_app:collect_unusual_whales",
 }
 
 

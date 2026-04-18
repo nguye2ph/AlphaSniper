@@ -126,6 +126,33 @@ async def collect_rss_feeds():
     await _run_collector(RssFeeds)
 
 
+# --- Phase 3: Tier 2 Data Sources ---
+
+
+@broker.task()
+async def collect_stocktwits():
+    """Poll StockTwits public symbol streams for sentiment."""
+    from src.collectors.stocktwits_rest import StockTwitsRest
+
+    await _run_collector(StockTwitsRest)
+
+
+@broker.task()
+async def collect_ortex():
+    """Poll ORTEX for daily short interest data."""
+    from src.collectors.ortex_short_interest import OrtexShortInterest
+
+    await _run_collector(OrtexShortInterest)
+
+
+@broker.task()
+async def collect_unusual_whales():
+    """Poll Unusual Whales for options flow (experimental)."""
+    from src.collectors.unusual_whales import UnusualWhales
+
+    await _run_collector(UnusualWhales)
+
+
 @broker.task()
 async def scrape_unscraped_articles(batch_size: int = 20):
     """Scrape unscraped article URLs for content extraction."""
@@ -543,6 +570,146 @@ async def process_earnings_events(batch_size: int = 50):
                 await raw.save()
 
         logger.info("earnings_processed", processed=processed, total=len(raw_docs))
+    finally:
+        await close_mongo()
+
+
+@broker.task()
+async def process_short_interest(batch_size: int = 50):
+    """Process raw ORTEX data -> ShortInterest in PostgreSQL."""
+    from src.core.database import async_session_factory, close_mongo, init_mongo
+    from src.core.models.raw_article import RawArticle
+    from src.core.models.short_interest import ShortInterest
+
+    await init_mongo()
+    try:
+        raw_docs = await RawArticle.find(
+            RawArticle.source == "ortex",
+            RawArticle.is_processed == False,  # noqa: E712
+        ).sort("-collected_at").limit(batch_size).to_list()
+
+        if not raw_docs:
+            return
+
+        logger.info("processing_short_interest", count=len(raw_docs))
+        processed = 0
+
+        async with async_session_factory() as session:
+            for raw in raw_docs:
+                p = raw.payload
+                ticker = p.get("ticker", "")
+                if not ticker:
+                    raw.is_processed = True
+                    await raw.save()
+                    continue
+
+                report_date_str = p.get("report_date", "")
+                try:
+                    report_date = datetime.strptime(report_date_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                except (ValueError, TypeError):
+                    report_date = datetime.now(timezone.utc)
+
+                si = ShortInterest(
+                    id=uuid.uuid4(),
+                    ticker=ticker,
+                    short_pct_float=float(p.get("short_pct_float", 0)),
+                    days_to_cover=float(p.get("days_to_cover", 0)),
+                    borrow_fee_pct=p.get("borrow_fee_pct"),
+                    squeeze_score=p.get("squeeze_score"),
+                    report_date=report_date,
+                    source="ortex",
+                    source_id=raw.source_id,
+                    raw_data=raw.payload,
+                )
+                try:
+                    session.add(si)
+                    await session.commit()
+                    processed += 1
+                except Exception as e:
+                    await session.rollback()
+                    logger.warning("short_interest_insert_error", source_id=raw.source_id, error=str(e)[:100])
+
+                raw.is_processed = True
+                await raw.save()
+
+        logger.info("short_interest_processed", processed=processed, total=len(raw_docs))
+    finally:
+        await close_mongo()
+
+
+@broker.task()
+async def process_stocktwits_posts(batch_size: int = 50):
+    """Process raw StockTwits posts -> SocialSentiment in PostgreSQL.
+
+    StockTwits provides sentiment labels directly, no VADER needed.
+    """
+    from src.core.database import async_session_factory, close_mongo, init_mongo
+    from src.core.models.raw_social_post import RawSocialPost
+    from src.core.models.social_sentiment import SocialSentiment
+    from src.parsers.social_sentiment_parser import extract_tickers
+
+    await init_mongo()
+    try:
+        raw_posts = await RawSocialPost.find(
+            RawSocialPost.source == "stocktwits",
+            RawSocialPost.is_processed == False,  # noqa: E712
+        ).sort("-collected_at").limit(batch_size).to_list()
+
+        if not raw_posts:
+            return
+
+        logger.info("processing_stocktwits", count=len(raw_posts))
+        processed = 0
+
+        async with async_session_factory() as session:
+            for raw in raw_posts:
+                payload = raw.payload
+                body = payload.get("body", "")
+                symbol = payload.get("symbol", "")
+                tickers = [symbol] if symbol else extract_tickers(body)
+
+                if not tickers:
+                    raw.is_processed = True
+                    await raw.save()
+                    continue
+
+                # StockTwits gives sentiment directly
+                st_label = payload.get("sentiment_label", "neutral").lower()
+                score_map = {"bullish": 0.6, "bearish": -0.6, "neutral": 0.0}
+                score = score_map.get(st_label, 0.0)
+
+                created_str = payload.get("created_at", "")
+                try:
+                    posted_at = datetime.fromisoformat(created_str.replace("Z", "+00:00"))
+                except (ValueError, AttributeError):
+                    posted_at = datetime.now(timezone.utc)
+
+                sentiment = SocialSentiment(
+                    id=uuid.uuid4(),
+                    ticker=tickers[0],
+                    platform="stocktwits",
+                    post_title=body[:500],
+                    post_body=body if body else None,
+                    post_score=0,
+                    sentiment_score=score,
+                    sentiment_label=st_label if st_label in ("bullish", "bearish") else "neutral",
+                    tickers=tickers,
+                    source_id=raw.source_id,
+                    posted_at=posted_at,
+                    raw_data=payload,
+                )
+                try:
+                    session.add(sentiment)
+                    await session.commit()
+                    processed += 1
+                except Exception as e:
+                    await session.rollback()
+                    logger.warning("stocktwits_insert_error", source_id=raw.source_id, error=str(e)[:100])
+
+                raw.is_processed = True
+                await raw.save()
+
+        logger.info("stocktwits_processed", processed=processed, total=len(raw_posts))
     finally:
         await close_mongo()
 

@@ -10,7 +10,9 @@ from src.api.routes.admin_scheduler_routes import router as admin_scheduler_rout
 from src.api.routes.articles_routes import router as articles_router
 from src.api.routes.earnings_routes import router as earnings_router
 from src.api.routes.insider_trades_routes import router as insider_trades_router
+from src.api.routes.options_flow_routes import router as options_flow_router
 from src.api.routes.sentiment_routes import router as sentiment_router
+from src.api.routes.short_interest_routes import router as short_interest_router
 from src.api.routes.sources_routes import router as sources_router
 from src.api.routes.tickers_routes import router as tickers_router
 from src.core.config import settings
@@ -56,6 +58,8 @@ app.include_router(admin_scheduler_router)
 app.include_router(insider_trades_router)
 app.include_router(earnings_router)
 app.include_router(sentiment_router)
+app.include_router(short_interest_router)
+app.include_router(options_flow_router)
 
 
 @app.get("/health")

@@ -40,6 +40,14 @@ DEFAULT_SOURCES: list[dict] = [
      "min_interval_seconds": 3600, "max_interval_seconds": 43200},
     {"name": "rss_feeds", "current_interval_seconds": 300,
      "min_interval_seconds": 120, "max_interval_seconds": 1800},
+    # Phase 3: Tier 2 data sources
+    {"name": "stocktwits", "current_interval_seconds": 300,
+     "min_interval_seconds": 120, "max_interval_seconds": 1800},
+    {"name": "ortex", "current_interval_seconds": 86400,
+     "min_interval_seconds": 43200, "max_interval_seconds": 86400,
+     "strategy": "manual"},
+    {"name": "unusual_whales", "current_interval_seconds": 3600,
+     "min_interval_seconds": 1800, "max_interval_seconds": 7200},
 ]
 
 

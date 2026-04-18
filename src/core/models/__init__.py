@@ -6,12 +6,13 @@ from src.core.models.insider_trade import InsiderTrade
 from src.core.models.raw_article import RawArticle
 from src.core.models.raw_insider_trade import RawInsiderTrade
 from src.core.models.raw_social_post import RawSocialPost
+from src.core.models.short_interest import ShortInterest
 from src.core.models.social_sentiment import SocialSentiment
 from src.core.models.source import Source
 from src.core.models.ticker import Ticker
 
 __all__ = [
     "RawArticle", "RawSocialPost", "RawInsiderTrade",
-    "Article", "InsiderTrade", "EarningsEvent", "SocialSentiment",
+    "Article", "InsiderTrade", "EarningsEvent", "SocialSentiment", "ShortInterest",
     "Ticker", "Source",
 ]

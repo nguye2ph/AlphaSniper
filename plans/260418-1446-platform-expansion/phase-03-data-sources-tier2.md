@@ -10,7 +10,7 @@
 ## Overview
 
 - **Priority:** P2
-- **Status:** pending
+- **Status:** complete
 - **Effort:** ~1 week
 - **Description:** Add 3 more collectors: StockTwits sentiment (reuse SocialSentiment model from P2), ORTEX short interest, Unusual Whales options flow. New PostgreSQL model: ShortInterest.
 
