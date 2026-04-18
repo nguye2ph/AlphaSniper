@@ -23,6 +23,7 @@ class SourceScheduleConfig(BaseModel):
     max_rate_errors: int = 5
     adjustment_cooldown_seconds: int = 300
     last_adjustment_at: datetime | None = None
+    trading_hours_only: bool = False  # If True, use max_interval when market closed
 
 
 class SourceMetrics(BaseModel):
@@ -41,7 +42,7 @@ class AdjustmentResult(BaseModel):
     """Result of an adjustment evaluation for a source."""
 
     source_name: str
-    action: Literal["decrease", "increase", "circuit_break", "cooldown_skip", "no_change"]
+    action: Literal["decrease", "increase", "circuit_break", "cooldown_skip", "no_change", "market_closed"]
     old_interval: int
     new_interval: int
     reason: str

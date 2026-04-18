@@ -14,6 +14,7 @@ from src.api.routes.options_flow_routes import router as options_flow_router
 from src.api.routes.sentiment_routes import router as sentiment_router
 from src.api.routes.short_interest_routes import router as short_interest_router
 from src.api.routes.sources_routes import router as sources_router
+from src.api.routes.ticker_health_routes import router as ticker_health_router
 from src.api.routes.tickers_routes import router as tickers_router
 from src.core.config import settings
 from src.core.database import close_mongo, close_redis, init_mongo, init_redis
@@ -60,6 +61,7 @@ app.include_router(earnings_router)
 app.include_router(sentiment_router)
 app.include_router(short_interest_router)
 app.include_router(options_flow_router)
+app.include_router(ticker_health_router)
 
 
 @app.get("/health")

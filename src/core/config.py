@@ -64,6 +64,8 @@ class Settings(BaseSettings):
 
     # Adaptive scheduler
     scheduler_adjustment_enabled: bool = True
+    llm_advisor_enabled: bool = False
+    market_calendar_enabled: bool = True
 
     # Application
     app_env: str = "development"

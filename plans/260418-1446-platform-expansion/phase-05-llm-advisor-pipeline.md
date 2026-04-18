@@ -10,7 +10,7 @@
 ## Overview
 
 - **Priority:** P2
-- **Status:** pending
+- **Status:** complete
 - **Effort:** ~1 week
 - **Description:** Add Gemini LLM as Tier 3 scheduling advisor (hourly). Market calendar awareness. Cross-source dedup via headline similarity. Ticker health score computation combining all data sources.
 

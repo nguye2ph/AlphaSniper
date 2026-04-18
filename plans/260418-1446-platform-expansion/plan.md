@@ -30,7 +30,7 @@ Expand from 6 collectors to 13+, add adaptive scheduling, redesign webapp, integ
 | 2 | [Data Sources Tier 1](phase-02-data-sources-tier1.md) | complete | 1.5w | P1 |
 | 3 | [Data Sources Tier 2](phase-03-data-sources-tier2.md) | complete | 1w | P1 |
 | 4 | [UI Redesign (Stitch)](phase-04-ui-redesign.md) | complete | 2w | P2,P3 |
-| 5 | [LLM Advisor + Pipeline](phase-05-llm-advisor-pipeline.md) | pending | 1w | P1 |
+| 5 | [LLM Advisor + Pipeline](phase-05-llm-advisor-pipeline.md) | complete | 1w | P1 |
 | 6 | [Visualization & Analytics](phase-06-visualization-analytics.md) | pending | 1.5w | P4,P5 |
 
 ## Key Dependencies

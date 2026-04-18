@@ -203,12 +203,14 @@ async def process_raw_articles(batch_size: int = 50):
     from src.core.database import async_session_factory, close_mongo, init_mongo
     from src.core.models.article import Article
     from src.core.models.raw_article import RawArticle
+    from src.parsers.cross_source_dedup import CrossSourceDedup
     from src.parsers.dedup import DedupChecker
     from src.parsers.gemini_parser import GeminiParser
 
     await init_mongo()
     redis_client = aioredis.from_url(settings.redis_url, decode_responses=True)
     dedup = DedupChecker(redis_client)
+    cross_dedup = CrossSourceDedup(redis_client)
     mcap_cache = MarketCapCache(redis_client, settings.finnhub_api_key)
     gemini = GeminiParser()
 
@@ -227,7 +229,7 @@ async def process_raw_articles(batch_size: int = 50):
 
         async with async_session_factory() as session:
             for raw in raw_docs:
-                # Dedup check
+                # Dedup check (source-level)
                 is_new = await dedup.check_and_mark(raw.source, raw.source_id)
                 if not is_new:
                     raw.is_processed = True
@@ -237,6 +239,16 @@ async def process_raw_articles(batch_size: int = 50):
                 # Extract headline from payload (varies by source)
                 headline = _extract_headline(raw.source, raw.payload)
                 url = raw.payload.get("url", "")
+
+                # Cross-source dedup: URL layer
+                if url and await cross_dedup.is_url_duplicate(url, raw.source):
+                    raw.is_processed = True
+                    await raw.save()
+                    continue
+
+                # Queue headline for batch LLM dedup (runs every 5 min via separate task)
+                if headline:
+                    await cross_dedup.queue_for_headline_dedup(headline, str(raw.id))
                 published_at = _extract_timestamp(raw.source, raw.payload)
 
                 # Parse headline with Gemini AI
@@ -740,6 +752,61 @@ async def adjust_schedules():
         logger.info("adjustment_complete", total=len(results), changed=len(changed))
     finally:
         await redis.close()
+
+
+@broker.task()
+async def refresh_ticker_health_scores():
+    """Hourly: recompute health scores for active tickers and cache in Redis."""
+    import redis.asyncio as aioredis
+    from sqlalchemy import func, select, text
+
+    from src.core.database import async_session_factory
+    from src.core.models.article import Article
+    from src.parsers.ticker_health_score import compute_health_score
+
+    # Get top 50 active tickers (most articles in last 24h)
+    async with async_session_factory() as session:
+        result = await session.execute(
+            select(func.unnest(Article.tickers).label("ticker"))
+            .where(Article.published_at >= func.now() - text("interval '24 hours'"))
+            .group_by("ticker")
+            .order_by(func.count().desc())
+            .limit(50)
+        )
+        tickers = [r[0] for r in result.all()]
+
+    if not tickers:
+        logger.info("no_active_tickers_for_health")
+        return
+
+    redis = aioredis.from_url(settings.redis_url, decode_responses=True)
+    try:
+        async with async_session_factory() as session:
+            for ticker in tickers:
+                health = await compute_health_score(ticker, session)
+                await redis.set(f"ticker:health:{ticker}", health.model_dump_json(), ex=3600)
+        logger.info("health_scores_refreshed", count=len(tickers))
+    finally:
+        await redis.aclose()
+
+
+@broker.task()
+async def run_headline_dedup_batch():
+    """Every 5 min: batch-evaluate queued headlines for cross-source duplicates."""
+    import redis.asyncio as aioredis
+
+    from src.parsers.cross_source_dedup import CrossSourceDedup
+
+    redis_client = aioredis.from_url(settings.redis_url, decode_responses=True)
+    try:
+        cross_dedup = CrossSourceDedup(redis_client)
+        groups = await cross_dedup.run_batch_headline_dedup()
+        if groups:
+            logger.info("headline_dedup_complete", duplicate_groups=len(groups), groups=groups)
+        else:
+            logger.debug("headline_dedup_no_duplicates")
+    finally:
+        await redis_client.close()
 
 
 @broker.task()
