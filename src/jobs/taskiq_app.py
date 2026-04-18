@@ -1,78 +1,88 @@
-"""Taskiq broker configuration and scheduled task definitions."""
+"""Taskiq broker configuration and scheduled task definitions.
+
+Scheduling is dynamic via ListRedisScheduleSource — intervals are managed
+in Redis by the adaptive scheduler (src/scheduler/). No hardcoded cron here.
+"""
 
 import uuid
 from datetime import datetime, timezone
 
+import httpx
 import structlog
 from taskiq import TaskiqScheduler
-from taskiq.schedule_sources import LabelScheduleSource
 from taskiq_redis import ListQueueBroker
 
 from src.core.config import settings
+from src.scheduler.scheduler_integration import create_schedule_source
 
 logger = structlog.get_logger()
 
 # Redis-backed broker for task queue
 broker = ListQueueBroker(url=settings.redis_url)
 
-# Schedule source for taskiq scheduler
-schedule_source = LabelScheduleSource(broker)
+# Dynamic schedule source — reads cron entries from Redis list
+schedule_source = create_schedule_source()
 scheduler = TaskiqScheduler(broker=broker, sources=[schedule_source])
 
 
-@broker.task(schedule=[{"cron": "*/5 * * * *"}])
+async def _run_collector(collector_cls: type) -> None:
+    """Run a collector with metrics reporting and error tracking."""
+    collector = collector_cls()
+    await collector.setup()
+    try:
+        await collector.collect()
+        # Count saved articles from MongoDB for this poll cycle
+        from src.core.models.raw_article import RawArticle
+
+        count = await RawArticle.find(
+            RawArticle.source == collector.source_name,
+            RawArticle.is_processed == False,  # noqa: E712
+        ).count()
+        await collector.report_metrics(count)
+    except httpx.HTTPStatusError as e:
+        is_rate = e.response.status_code == 429
+        await collector.report_metrics(0, had_error=True, is_rate_limit=is_rate)
+        raise
+    except Exception:
+        await collector.report_metrics(0, had_error=True)
+        raise
+    finally:
+        await collector.teardown()
+
+
+@broker.task()
 async def collect_finnhub_rest():
-    """Scheduled: poll Finnhub REST API for market + company news."""
+    """Poll Finnhub REST API for market + company news."""
     from src.collectors.finnhub_rest import FinnhubRest
 
-    collector = FinnhubRest()
-    await collector.setup()
-    try:
-        await collector.collect()
-    finally:
-        await collector.teardown()
+    await _run_collector(FinnhubRest)
 
 
-@broker.task(schedule=[{"cron": "*/15 * * * *"}])
+@broker.task()
 async def collect_marketaux():
-    """Scheduled: poll MarketAux API every 15 min."""
+    """Poll MarketAux API."""
     from src.collectors.marketaux_rest import MarketAuxRest
 
-    collector = MarketAuxRest()
-    await collector.setup()
-    try:
-        await collector.collect()
-    finally:
-        await collector.teardown()
+    await _run_collector(MarketAuxRest)
 
 
-@broker.task(schedule=[{"cron": "*/30 * * * *"}])
+@broker.task()
 async def collect_sec_edgar():
-    """Scheduled: poll SEC EDGAR every 30 min."""
+    """Poll SEC EDGAR RSS feed."""
     from src.collectors.sec_edgar_rss import SecEdgarCollector
 
-    collector = SecEdgarCollector()
-    await collector.setup()
-    try:
-        await collector.collect()
-    finally:
-        await collector.teardown()
+    await _run_collector(SecEdgarCollector)
 
 
-@broker.task(schedule=[{"cron": "* * * * *"}])
+@broker.task()
 async def collect_tickertick():
-    """Scheduled: poll TickerTick API every 1 min (2 req/cycle, within 10 req/min limit)."""
+    """Poll TickerTick API."""
     from src.collectors.tickertick_rest import TickerTickRest
 
-    collector = TickerTickRest()
-    await collector.setup()
-    try:
-        await collector.collect()
-    finally:
-        await collector.teardown()
+    await _run_collector(TickerTickRest)
 
 
-@broker.task(schedule=[{"cron": "*/5 * * * *"}])
+@broker.task()
 async def scrape_unscraped_articles(batch_size: int = 20):
     """Scrape unscraped article URLs for content extraction."""
     import asyncio
@@ -113,17 +123,17 @@ async def scrape_unscraped_articles(batch_size: int = 20):
         logger.info("scrape_batch_done", scraped=scraped, total=len(articles))
 
 
-@broker.task(schedule=[{"cron": "*/2 * * * *"}])
+@broker.task()
 async def process_raw_articles(batch_size: int = 50):
     """Process unprocessed raw articles: dedup → parse → insert to PostgreSQL."""
     import redis.asyncio as aioredis
 
+    from src.collectors.market_cap_cache import MarketCapCache
     from src.core.database import async_session_factory, close_mongo, init_mongo
     from src.core.models.article import Article
     from src.core.models.raw_article import RawArticle
     from src.parsers.dedup import DedupChecker
     from src.parsers.gemini_parser import GeminiParser
-    from src.collectors.market_cap_cache import MarketCapCache
 
     await init_mongo()
     redis_client = aioredis.from_url(settings.redis_url, decode_responses=True)
@@ -286,3 +296,50 @@ def _extract_market_cap(source: str, payload: dict) -> float | None:
         mcs = [e.get("market_cap") for e in entities if e.get("market_cap")]
         return min(mcs) if mcs else None
     return None
+
+
+# --- Adaptive Scheduler Tasks ---
+
+
+@broker.task()
+async def adjust_schedules():
+    """Hourly: evaluate all sources and adjust polling intervals via EMA rules."""
+    import redis.asyncio as aioredis
+
+    from src.scheduler.adjustment_engine import apply_adjustments
+    from src.scheduler.scheduler_integration import sync_schedules
+
+    if not settings.scheduler_adjustment_enabled:
+        logger.info("scheduler_adjustment_disabled")
+        return
+
+    redis = aioredis.from_url(settings.redis_url, decode_responses=True)
+    try:
+        results = await apply_adjustments(redis)
+        changed = [r for r in results if r.action not in ("no_change", "cooldown_skip")]
+        if changed:
+            # Re-sync schedules to pick up new intervals
+            await sync_schedules(schedule_source)
+            logger.info("schedules_resynced", changed=[r.source_name for r in changed])
+        logger.info("adjustment_complete", total=len(results), changed=len(changed))
+    finally:
+        await redis.close()
+
+
+@broker.task()
+async def seed_and_sync_schedules():
+    """Startup task: seed default configs and sync schedules to Redis list."""
+    import redis.asyncio as aioredis
+
+    from src.scheduler.config_manager import seed_defaults
+    from src.scheduler.scheduler_integration import sync_schedules
+
+    redis = aioredis.from_url(settings.redis_url, decode_responses=True)
+    try:
+        seeded = await seed_defaults(redis)
+        logger.info("startup_seed_complete", seeded=seeded)
+    finally:
+        await redis.close()
+
+    synced = await sync_schedules(schedule_source)
+    logger.info("startup_sync_complete", synced=synced)

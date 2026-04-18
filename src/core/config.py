@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     # Frontend (Vercel URL for CORS)
     frontend_url: str = ""
 
+    # Adaptive scheduler
+    scheduler_adjustment_enabled: bool = True
+
     # Application
     app_env: str = "development"
     log_level: str = "INFO"
