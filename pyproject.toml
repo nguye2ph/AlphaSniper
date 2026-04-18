@@ -42,6 +42,10 @@ dependencies = [
     # Feedparser (RSS)
     "feedparser>=6.0.0",
     "discord-py-self>=2.1.0",
+    # Reddit API
+    "praw>=7.7.0",
+    # Sentiment analysis
+    "vaderSentiment>=3.3.0",
 ]
 
 [project.optional-dependencies]

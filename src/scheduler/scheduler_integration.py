@@ -30,6 +30,11 @@ TASK_NAME_MAP: dict[str, str] = {
     "scrape_content": "src.jobs.taskiq_app:scrape_unscraped_articles",
     "process_raw": "src.jobs.taskiq_app:process_raw_articles",
     "adjust_schedules": "src.jobs.taskiq_app:adjust_schedules",
+    # Phase 2: Tier 1 sources
+    "reddit": "src.jobs.taskiq_app:collect_reddit",
+    "openinsider": "src.jobs.taskiq_app:collect_openinsider",
+    "earnings_calendar": "src.jobs.taskiq_app:collect_earnings",
+    "rss_feeds": "src.jobs.taskiq_app:collect_rss_feeds",
 }
 
 

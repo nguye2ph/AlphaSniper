@@ -31,6 +31,15 @@ DEFAULT_SOURCES: list[dict] = [
     {"name": "adjust_schedules", "current_interval_seconds": 3600,
      "min_interval_seconds": 1800, "max_interval_seconds": 7200,
      "strategy": "manual"},
+    # Phase 2: Tier 1 data sources
+    {"name": "reddit", "current_interval_seconds": 300,
+     "min_interval_seconds": 120, "max_interval_seconds": 1800},
+    {"name": "openinsider", "current_interval_seconds": 600,
+     "min_interval_seconds": 300, "max_interval_seconds": 3600},
+    {"name": "earnings_calendar", "current_interval_seconds": 21600,
+     "min_interval_seconds": 3600, "max_interval_seconds": 43200},
+    {"name": "rss_feeds", "current_interval_seconds": 300,
+     "min_interval_seconds": 120, "max_interval_seconds": 1800},
 ]
 
 

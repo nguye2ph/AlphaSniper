@@ -37,6 +37,21 @@ class Settings(BaseSettings):
     discord_channel_ids: list[str] = []
     nuntio_bot_name: str = "NuntioBot"
 
+    # Reddit (social sentiment - Phase 2)
+    reddit_client_id: str = ""
+    reddit_client_secret: str = ""
+    reddit_user_agent: str = "AlphaSniper/1.0"
+    reddit_subreddits: list[str] = ["wallstreetbets", "stocks", "pennystocks"]
+
+    # API Ninjas (earnings calendar - Phase 2)
+    api_ninjas_key: str = ""
+
+    # RSS feeds (supplementary news - Phase 2)
+    rss_feed_urls: list[str] = [
+        "https://feeds.finance.yahoo.com/rss/2.0/headline",
+        "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+    ]
+
     # Discord webhook (outbound alerts)
     discord_webhook_url: str = ""  # Empty = disabled
     discord_sentiment_threshold: float = 0.5

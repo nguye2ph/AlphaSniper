@@ -9,7 +9,7 @@
 ## Overview
 
 - **Priority:** P1
-- **Status:** pending
+- **Status:** complete
 - **Effort:** ~1.5 weeks
 - **Description:** Add 4 new collectors (Reddit, OpenInsider, Earnings Calendar, RSS Feeds), 3 new PostgreSQL models, 2 new parsers. All free-tier sources providing unique data types not in existing pipeline.
 

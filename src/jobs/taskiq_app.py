@@ -25,19 +25,28 @@ schedule_source = create_schedule_source()
 scheduler = TaskiqScheduler(broker=broker, sources=[schedule_source])
 
 
+async def _count_unprocessed(source_name: str) -> int:
+    """Count unprocessed raw docs for a source across all MongoDB collections."""
+    from src.core.models.raw_article import RawArticle
+    from src.core.models.raw_insider_trade import RawInsiderTrade
+    from src.core.models.raw_social_post import RawSocialPost
+
+    count = 0
+    for model in (RawArticle, RawSocialPost, RawInsiderTrade):
+        count += await model.find(
+            model.source == source_name,
+            model.is_processed == False,  # noqa: E712
+        ).count()
+    return count
+
+
 async def _run_collector(collector_cls: type) -> None:
     """Run a collector with metrics reporting and error tracking."""
     collector = collector_cls()
     await collector.setup()
     try:
         await collector.collect()
-        # Count saved articles from MongoDB for this poll cycle
-        from src.core.models.raw_article import RawArticle
-
-        count = await RawArticle.find(
-            RawArticle.source == collector.source_name,
-            RawArticle.is_processed == False,  # noqa: E712
-        ).count()
+        count = await _count_unprocessed(collector.source_name)
         await collector.report_metrics(count)
     except httpx.HTTPStatusError as e:
         is_rate = e.response.status_code == 429
@@ -80,6 +89,41 @@ async def collect_tickertick():
     from src.collectors.tickertick_rest import TickerTickRest
 
     await _run_collector(TickerTickRest)
+
+
+# --- Phase 2: Tier 1 Data Sources ---
+
+
+@broker.task()
+async def collect_reddit():
+    """Poll Reddit (WSB, stocks, pennystocks) for stock mentions."""
+    from src.collectors.reddit_praw import RedditPraw
+
+    await _run_collector(RedditPraw)
+
+
+@broker.task()
+async def collect_openinsider():
+    """Scrape OpenInsider for insider buy/sell transactions."""
+    from src.collectors.openinsider_scraper import OpenInsiderScraper
+
+    await _run_collector(OpenInsiderScraper)
+
+
+@broker.task()
+async def collect_earnings():
+    """Poll API Ninjas for earnings calendar events."""
+    from src.collectors.earnings_calendar import EarningsCalendar
+
+    await _run_collector(EarningsCalendar)
+
+
+@broker.task()
+async def collect_rss_feeds():
+    """Poll Yahoo/CNBC RSS feeds for financial news."""
+    from src.collectors.rss_feeds import RssFeeds
+
+    await _run_collector(RssFeeds)
 
 
 @broker.task()
@@ -237,6 +281,11 @@ def _extract_headline(source: str, payload: dict) -> str:
         return payload.get("headline", "")
     elif source == "tickertick":
         return payload.get("title", "")
+    elif source == "rss_feeds":
+        return payload.get("title", "")
+    elif source == "earnings_calendar":
+        ticker = payload.get("ticker", "")
+        return f"{ticker} Earnings Report"
     return payload.get("headline", payload.get("title", ""))
 
 
@@ -264,6 +313,15 @@ def _extract_timestamp(source: str, payload: dict) -> datetime:
         ts = payload.get("time", 0)
         if ts:
             return datetime.fromtimestamp(ts / 1000, tz=timezone.utc)  # ms epoch
+    elif source == "rss_feeds":
+        published = payload.get("published", "")
+        if published:
+            try:
+                from email.utils import parsedate_to_datetime
+
+                return parsedate_to_datetime(published)
+            except Exception:
+                pass
     # discord_nuntio + fallback: use collected_at
     return datetime.now(timezone.utc)
 
@@ -284,6 +342,11 @@ def _extract_payload_tickers(source: str, payload: dict) -> list[str]:
         return [ticker] if ticker else []
     elif source == "tickertick":
         return payload.get("tags", [])
+    elif source == "rss_feeds":
+        return []  # RSS headlines parsed by Gemini
+    elif source == "earnings_calendar":
+        ticker = payload.get("ticker")
+        return [ticker] if ticker else []
     return []
 
 
@@ -296,6 +359,192 @@ def _extract_market_cap(source: str, payload: dict) -> float | None:
         mcs = [e.get("market_cap") for e in entities if e.get("market_cap")]
         return min(mcs) if mcs else None
     return None
+
+
+# --- Phase 2: Process Social Posts + Insider Trades ---
+
+
+@broker.task()
+async def process_social_posts(batch_size: int = 50):
+    """Process raw Reddit/StockTwits posts -> SocialSentiment in PostgreSQL."""
+    from src.core.database import async_session_factory, close_mongo, init_mongo
+    from src.core.models.raw_social_post import RawSocialPost
+    from src.core.models.social_sentiment import SocialSentiment
+    from src.parsers.social_sentiment_parser import analyze_sentiment, extract_tickers
+
+    await init_mongo()
+    try:
+        raw_posts = await RawSocialPost.find(
+            RawSocialPost.is_processed == False  # noqa: E712
+        ).sort("-collected_at").limit(batch_size).to_list()
+
+        if not raw_posts:
+            return
+
+        logger.info("processing_social_posts", count=len(raw_posts))
+        processed = 0
+
+        async with async_session_factory() as session:
+            for raw in raw_posts:
+                payload = raw.payload
+                title = payload.get("title", "")
+                body = payload.get("body", "")
+                text = f"{title} {body}".strip()
+
+                tickers = extract_tickers(text)
+                if not tickers:
+                    raw.is_processed = True
+                    await raw.save()
+                    continue
+
+                score, label = analyze_sentiment(text)
+                posted_at = datetime.fromtimestamp(
+                    payload.get("created_utc", 0), tz=timezone.utc
+                ) if payload.get("created_utc") else datetime.now(timezone.utc)
+
+                sentiment = SocialSentiment(
+                    id=uuid.uuid4(),
+                    ticker=tickers[0],
+                    platform=raw.source,
+                    post_title=title[:500],
+                    post_body=body[:2000] if body else None,
+                    post_score=payload.get("score", 0),
+                    subreddit=payload.get("subreddit"),
+                    sentiment_score=score,
+                    sentiment_label=label,
+                    tickers=tickers,
+                    source_id=raw.source_id,
+                    posted_at=posted_at,
+                    raw_data=payload,
+                )
+                try:
+                    session.add(sentiment)
+                    await session.commit()
+                    processed += 1
+                except Exception as e:
+                    await session.rollback()
+                    logger.warning("social_insert_error", source_id=raw.source_id, error=str(e)[:100])
+
+                raw.is_processed = True
+                await raw.save()
+
+        logger.info("social_posts_processed", processed=processed, total=len(raw_posts))
+    finally:
+        await close_mongo()
+
+
+@broker.task()
+async def process_insider_trades(batch_size: int = 50):
+    """Process raw OpenInsider trades -> InsiderTrade in PostgreSQL."""
+    from src.core.database import async_session_factory, close_mongo, init_mongo
+    from src.core.models.insider_trade import InsiderTrade
+    from src.core.models.raw_insider_trade import RawInsiderTrade
+    from src.parsers.insider_trade_parser import parse_trade
+
+    await init_mongo()
+    try:
+        raw_trades = await RawInsiderTrade.find(
+            RawInsiderTrade.is_processed == False  # noqa: E712
+        ).sort("-collected_at").limit(batch_size).to_list()
+
+        if not raw_trades:
+            return
+
+        logger.info("processing_insider_trades", count=len(raw_trades))
+        processed = 0
+
+        async with async_session_factory() as session:
+            for raw in raw_trades:
+                parsed = parse_trade(raw.payload)
+                if not parsed:
+                    raw.is_processed = True
+                    await raw.save()
+                    continue
+
+                trade = InsiderTrade(
+                    id=uuid.uuid4(),
+                    source=raw.source,
+                    source_id=raw.source_id,
+                    raw_data=raw.payload,
+                    **parsed,
+                )
+                try:
+                    session.add(trade)
+                    await session.commit()
+                    processed += 1
+                except Exception as e:
+                    await session.rollback()
+                    logger.warning("insider_insert_error", source_id=raw.source_id, error=str(e)[:100])
+
+                raw.is_processed = True
+                await raw.save()
+
+        logger.info("insider_trades_processed", processed=processed, total=len(raw_trades))
+    finally:
+        await close_mongo()
+
+
+@broker.task()
+async def process_earnings_events(batch_size: int = 50):
+    """Process raw earnings data -> EarningsEvent in PostgreSQL."""
+    from src.core.database import async_session_factory, close_mongo, init_mongo
+    from src.core.models.earnings_event import EarningsEvent
+    from src.core.models.raw_article import RawArticle
+
+    await init_mongo()
+    try:
+        raw_docs = await RawArticle.find(
+            RawArticle.source == "earnings_calendar",
+            RawArticle.is_processed == False,  # noqa: E712
+        ).sort("-collected_at").limit(batch_size).to_list()
+
+        if not raw_docs:
+            return
+
+        logger.info("processing_earnings", count=len(raw_docs))
+        processed = 0
+
+        async with async_session_factory() as session:
+            for raw in raw_docs:
+                p = raw.payload
+                ticker = p.get("ticker", "")
+                if not ticker:
+                    raw.is_processed = True
+                    await raw.save()
+                    continue
+
+                report_date_str = p.get("pricedate", "")
+                try:
+                    report_date = datetime.strptime(report_date_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                except (ValueError, TypeError):
+                    report_date = datetime.now(timezone.utc)
+
+                event = EarningsEvent(
+                    id=uuid.uuid4(),
+                    ticker=ticker,
+                    report_date=report_date,
+                    estimated_eps=p.get("estimated_eps"),
+                    actual_eps=p.get("actual_eps"),
+                    estimated_revenue=p.get("estimated_revenue"),
+                    actual_revenue=p.get("actual_revenue"),
+                    surprise_pct=p.get("eps_surprise_pct"),
+                    source="earnings_calendar",
+                    source_id=raw.source_id,
+                )
+                try:
+                    session.add(event)
+                    await session.commit()
+                    processed += 1
+                except Exception as e:
+                    await session.rollback()
+                    logger.warning("earnings_insert_error", source_id=raw.source_id, error=str(e)[:100])
+
+                raw.is_processed = True
+                await raw.save()
+
+        logger.info("earnings_processed", processed=processed, total=len(raw_docs))
+    finally:
+        await close_mongo()
 
 
 # --- Adaptive Scheduler Tasks ---

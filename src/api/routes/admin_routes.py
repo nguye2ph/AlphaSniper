@@ -76,15 +76,27 @@ async def system_stats():
 @router.post("/jobs/trigger/{job_name}")
 async def trigger_job(job_name: str):
     """Manually trigger a collector job."""
-    valid_jobs = ["finnhub_rest", "marketaux", "sec_edgar", "tickertick", "process_raw", "scrape_content"]
+    valid_jobs = [
+        "finnhub_rest", "marketaux", "sec_edgar", "tickertick",
+        "process_raw", "scrape_content",
+        "reddit", "openinsider", "earnings", "rss_feeds",
+        "process_social", "process_insider", "process_earnings",
+    ]
     if job_name not in valid_jobs:
         raise HTTPException(400, f"Invalid job. Valid: {valid_jobs}")
     from src.jobs.taskiq_app import (
+        collect_earnings,
         collect_finnhub_rest,
         collect_marketaux,
+        collect_openinsider,
+        collect_reddit,
+        collect_rss_feeds,
         collect_sec_edgar,
         collect_tickertick,
+        process_earnings_events,
+        process_insider_trades,
         process_raw_articles,
+        process_social_posts,
         scrape_unscraped_articles,
     )
     task_map = {
@@ -94,6 +106,13 @@ async def trigger_job(job_name: str):
         "tickertick": collect_tickertick,
         "process_raw": process_raw_articles,
         "scrape_content": scrape_unscraped_articles,
+        "reddit": collect_reddit,
+        "openinsider": collect_openinsider,
+        "earnings": collect_earnings,
+        "rss_feeds": collect_rss_feeds,
+        "process_social": process_social_posts,
+        "process_insider": process_insider_trades,
+        "process_earnings": process_earnings_events,
     }
     await task_map[job_name].kiq()
     return {"status": "triggered", "job": job_name}

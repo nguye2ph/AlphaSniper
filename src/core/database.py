@@ -48,10 +48,12 @@ async def init_mongo():
     from beanie import init_beanie
 
     from src.core.models.raw_article import RawArticle
+    from src.core.models.raw_insider_trade import RawInsiderTrade
+    from src.core.models.raw_social_post import RawSocialPost
 
     mongo_client = AsyncIOMotorClient(settings.mongo_uri)
     mongo_db = mongo_client[settings.mongo_db]
-    await init_beanie(database=mongo_db, document_models=[RawArticle])
+    await init_beanie(database=mongo_db, document_models=[RawArticle, RawSocialPost, RawInsiderTrade])
 
 
 async def close_mongo():
