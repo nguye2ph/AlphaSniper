@@ -11,7 +11,7 @@ from src.core.config import settings
 from src.core.database import Base
 
 # Import all models so they register with Base.metadata
-from src.core.models import Article, Source, Ticker  # noqa: F401
+from src.core.models import AlertRule, Article, EarningsEvent, InsiderTrade, ShortInterest, SocialSentiment, Source, Ticker  # noqa: F401
 
 config = context.config
 

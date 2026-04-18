@@ -1,4 +1,4 @@
-import { getTickerNews, getTickerSentimentHistory } from "@/lib/api";
+import { getTickerNews, getTickerSentimentHistory, getTickerHealth } from "@/lib/api";
 import type { Article, TickerSentimentPoint } from "@/types";
 import { formatSentiment, formatMarketCap, marketCapColor, sentimentColor } from "@/lib/utils";
 import { SentimentTrendChart } from "@/components/charts/sentiment-trend-chart";
@@ -35,6 +35,7 @@ export default async function TickerPage({
 
   let articles: Article[] = [];
   let rawSentimentHistory: TickerSentimentPoint[] = [];
+  let health: { score: number; signals: string[] } | null = null;
   try {
     [articles, rawSentimentHistory] = await Promise.all([
       getTickerNews(upperSymbol, 50),
@@ -43,6 +44,12 @@ export default async function TickerPage({
   } catch {
     articles = [];
     rawSentimentHistory = [];
+  }
+  try {
+    const h = await getTickerHealth(upperSymbol);
+    health = { score: h.score, signals: h.signals };
+  } catch {
+    health = null;
   }
 
   const sentimentHistory = rawSentimentHistory.map((p) => ({
@@ -87,12 +94,29 @@ export default async function TickerPage({
       </div>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
         <StatCard label="Market Cap" value={formatMarketCap(marketCap)} className={marketCapColor(marketCap)} />
         <StatCard label="Avg Sentiment" value={formatSentiment(avgSentiment)} className={sentimentColor(overallLabel)} />
         <StatCard label="Bullish" value={bullishCount} className="text-[#4edea3]" />
         <StatCard label="Bearish" value={bearishCount} className="text-[#ffb4ab]" />
         <StatCard label="Total Articles" value={articles.length} />
+        <div className="bg-[#171f33] rounded-lg border border-[#3c4947]/15 p-4">
+          <p className="text-[10px] uppercase tracking-wider text-[#bbcac6]">Health Score</p>
+          {health !== null ? (
+            <>
+              <p className={`text-xl font-mono font-bold mt-1 ${health.score > 70 ? "text-[#4edea3]" : health.score > 40 ? "text-amber-400" : "text-[#ffb4ab]"}`}>
+                {health.score}
+              </p>
+              {health.signals.length > 0 && (
+                <p className="text-[10px] text-[#bbcac6] mt-1 leading-tight line-clamp-2">
+                  {health.signals.slice(0, 2).join(" · ")}
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="text-xl font-mono font-bold mt-1 text-[#dae2fd]">—</p>
+          )}
+        </div>
       </div>
 
       {/* Charts */}

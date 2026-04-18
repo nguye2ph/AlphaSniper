@@ -9,11 +9,12 @@ import {
   UserCheck,
   CalendarDays,
   BarChart3,
+  PieChart,
+  Bell,
   Zap,
   Server,
   Gauge,
   Settings,
-  Bell,
   User,
   Crosshair,
 } from "lucide-react";
@@ -27,13 +28,14 @@ const mainNav = [
   { href: "/earnings", label: "Earnings", icon: CalendarDays },
   { href: "/short-interest", label: "Short Interest", icon: BarChart3 },
   { href: "/options-flow", label: "Options Flow", icon: Zap },
+  { href: "/analytics", label: "Analytics", icon: PieChart },
+  { href: "/alerts", label: "Alerts", icon: Bell },
   { href: "/sources", label: "Sources", icon: Server },
   { href: "/admin/scheduler", label: "Scheduler", icon: Gauge },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 const footerNav = [
-  { href: "#", label: "Notifications", icon: Bell },
   { href: "#", label: "Profile", icon: User },
 ];
 

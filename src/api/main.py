@@ -7,10 +7,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.routes.admin_routes import router as admin_router
 from src.api.routes.admin_scheduler_routes import router as admin_scheduler_router
+from src.api.routes.alert_routes import router as alert_router
 from src.api.routes.articles_routes import router as articles_router
 from src.api.routes.earnings_routes import router as earnings_router
+from src.api.routes.heatmap_routes import router as heatmap_router
 from src.api.routes.insider_trades_routes import router as insider_trades_router
 from src.api.routes.options_flow_routes import router as options_flow_router
+from src.api.routes.portfolio_routes import router as portfolio_router
 from src.api.routes.sentiment_routes import router as sentiment_router
 from src.api.routes.short_interest_routes import router as short_interest_router
 from src.api.routes.sources_routes import router as sources_router
@@ -62,6 +65,9 @@ app.include_router(sentiment_router)
 app.include_router(short_interest_router)
 app.include_router(options_flow_router)
 app.include_router(ticker_health_router)
+app.include_router(alert_router)
+app.include_router(heatmap_router)
+app.include_router(portfolio_router)
 
 
 @app.get("/health")

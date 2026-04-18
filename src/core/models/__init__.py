@@ -1,5 +1,6 @@
 """All database models — MongoDB (Beanie) and PostgreSQL (SQLAlchemy)."""
 
+from src.core.models.alert_rule import AlertRule
 from src.core.models.article import Article
 from src.core.models.earnings_event import EarningsEvent
 from src.core.models.insider_trade import InsiderTrade
@@ -14,5 +15,5 @@ from src.core.models.ticker import Ticker
 __all__ = [
     "RawArticle", "RawSocialPost", "RawInsiderTrade",
     "Article", "InsiderTrade", "EarningsEvent", "SocialSentiment", "ShortInterest",
-    "Ticker", "Source",
+    "Ticker", "Source", "AlertRule",
 ]

@@ -810,6 +810,14 @@ async def run_headline_dedup_batch():
 
 
 @broker.task()
+async def evaluate_alert_rules():
+    """Every 5 min: evaluate alert rules and trigger actions."""
+    from src.jobs.alert_evaluator import evaluate_all_rules
+
+    await evaluate_all_rules()
+
+
+@broker.task()
 async def seed_and_sync_schedules():
     """Startup task: seed default configs and sync schedules to Redis list."""
     import redis.asyncio as aioredis
