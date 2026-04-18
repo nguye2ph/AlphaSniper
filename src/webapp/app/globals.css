@@ -10,6 +10,17 @@
   --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
   --font-heading: var(--font-sans);
+  --font-data: "JetBrains Mono", "Geist Mono", ui-monospace, monospace;
+  /* Terminal semantic colors */
+  --color-surface: var(--surface);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-surface-bright: var(--surface-bright);
+  --color-bullish: var(--bullish);
+  --color-bearish: var(--bearish);
+  --color-outline-variant: var(--outline-variant);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -84,37 +95,49 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Terminal theme — derived from Stitch "AlphaSniper Trading Terminal" */
+  --background: #0b1326;
+  --foreground: #dae2fd;
+  --card: #171f33;
+  --card-foreground: #dae2fd;
+  --popover: #171f33;
+  --popover-foreground: #dae2fd;
+  --primary: #4fdbc8;
+  --primary-foreground: #003731;
+  --secondary: #4edea3;
+  --secondary-foreground: #003824;
+  --muted: #222a3d;
+  --muted-foreground: #bbcac6;
+  --accent: #14b8a6;
+  --accent-foreground: #00423b;
+  --destructive: #ffb4ab;
+  --border: #3c4947;
+  --input: #060e20;
+  --ring: #4fdbc8;
+  --chart-1: #4fdbc8;
+  --chart-2: #4edea3;
+  --chart-3: #14b8a6;
+  --chart-4: #ffb3ad;
+  --chart-5: #859490;
+  --sidebar: #0b1326;
+  --sidebar-foreground: #dae2fd;
+  --sidebar-primary: #14b8a6;
+  --sidebar-primary-foreground: #00423b;
+  --sidebar-accent: #171f33;
+  --sidebar-accent-foreground: #4fdbc8;
+  --sidebar-border: #3c494730;
+  --sidebar-ring: #4fdbc8;
+
+  /* Terminal semantic tokens */
+  --surface: #0b1326;
+  --surface-container: #171f33;
+  --surface-container-low: #131b2e;
+  --surface-container-high: #222a3d;
+  --surface-container-highest: #2d3449;
+  --surface-bright: #31394d;
+  --bullish: #4edea3;
+  --bearish: #ffb4ab;
+  --outline-variant: #3c4947;
 }
 
 @layer base {
@@ -136,9 +159,16 @@
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+/* Terminal card — main surface for data sections */
+.terminal-card {
+  background: var(--surface-container);
+  border-radius: 0.25rem;
+  border: 1px solid var(--outline-variant, #3c4947) / 15%;
+}
+
 /* Sentiment neon glows */
-.neon-green { box-shadow: 0 0 15px rgba(34, 197, 94, 0.15); }
-.neon-red { box-shadow: 0 0 15px rgba(239, 68, 68, 0.15); }
+.neon-green { box-shadow: 0 0 15px rgba(78, 222, 163, 0.15); }
+.neon-red { box-shadow: 0 0 15px rgba(255, 180, 171, 0.15); }
 
 /* Pulsing live dot */
 @keyframes pulse-dot {
@@ -151,3 +181,12 @@
 @media (prefers-reduced-motion: reduce) {
   .pulse-dot { animation: none; }
 }
+
+/* Terminal scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #0b1326; }
+::-webkit-scrollbar-thumb { background: #2d3449; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #4fdbc8; }
+
+/* Tabular numbers for data alignment */
+.tabular-nums { font-variant-numeric: tabular-nums; }

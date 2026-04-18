@@ -10,7 +10,7 @@
 ## Overview
 
 - **Priority:** P2
-- **Status:** pending
+- **Status:** complete
 - **Effort:** ~2 weeks
 - **Description:** Redesign Next.js webapp as professional trading terminal. Use Google Stitch for design exploration, export to Figma, convert to React/shadcn/ui components. Add pages for all new data types (insider trades, earnings, sentiment, short interest, options flow).
 
