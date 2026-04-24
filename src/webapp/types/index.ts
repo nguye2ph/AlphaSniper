@@ -68,6 +68,81 @@ export interface HourlyBucket {
   count: number;
 }
 
+/** Phase 2/3 data types */
+
+export interface InsiderTrade {
+  id: string;
+  ticker: string;
+  officer_name: string;
+  officer_title: string;
+  transaction_type: string;
+  shares: number;
+  price: number;
+  value: number;
+  filing_date: string;
+}
+
+export interface EarningsEvent {
+  id: string;
+  ticker: string;
+  report_date: string;
+  estimated_eps: number | null;
+  actual_eps: number | null;
+  estimated_revenue: number | null;
+  actual_revenue: number | null;
+  surprise_pct: number | null;
+}
+
+export interface SocialSentiment {
+  id: string;
+  ticker: string;
+  platform: string;
+  post_title: string;
+  post_score: number;
+  subreddit: string | null;
+  sentiment_score: number;
+  sentiment_label: string;
+  tickers: string[] | null;
+  posted_at: string;
+}
+
+export interface SentimentSummary {
+  ticker: string;
+  days: number;
+  post_count: number;
+  avg_sentiment: number;
+  total_score: number;
+}
+
+export interface ShortInterest {
+  id: string;
+  ticker: string;
+  short_pct_float: number;
+  days_to_cover: number;
+  borrow_fee_pct: number | null;
+  squeeze_score: number | null;
+  report_date: string;
+}
+
+export interface SchedulerSource {
+  config: {
+    name: string;
+    enabled: boolean;
+    current_interval_seconds: number;
+    min_interval_seconds: number;
+    max_interval_seconds: number;
+    strategy: string;
+  };
+  metrics: {
+    ema: number;
+    articles_last_hour: number;
+    total_polls: number;
+    api_errors_last_hour: number;
+    rate_limit_errors: number;
+    last_poll_at: string | null;
+  };
+}
+
 export interface ArticleFilters {
   ticker?: string;
   source?: string;
