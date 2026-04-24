@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AlphaSniper - Short Interest</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "background": "#0b1326",
+                      "tertiary-fixed-dim": "#ffb3ad",
+                      "primary-container": "#14b8a6",
+                      "on-surface-variant": "#bbcac6",
+                      "inverse-on-surface": "#283044",
+                      "surface-container": "#171f33",
+                      "on-tertiary-fixed-variant": "#930013",
+                      "inverse-primary": "#006b5f",
+                      "tertiary": "#ffb3ad",
+                      "tertiary-fixed": "#ffdad7",
+                      "on-error": "#690005",
+                      "surface-container-lowest": "#060e20",
+                      "secondary-fixed-dim": "#4edea3",
+                      "on-primary": "#003731",
+                      "on-tertiary-container": "#7b000e",
+                      "surface-variant": "#2d3449",
+                      "surface-container-low": "#131b2e",
+                      "on-tertiary-fixed": "#410004",
+                      "primary": "#4fdbc8",
+                      "surface-container-high": "#222a3d",
+                      "on-tertiary": "#68000a",
+                      "on-secondary": "#003824",
+                      "surface-dim": "#0b1326",
+                      "on-error-container": "#ffdad6",
+                      "primary-fixed": "#71f8e4",
+                      "on-primary-fixed-variant": "#005048",
+                      "surface-tint": "#4fdbc8",
+                      "on-secondary-fixed-variant": "#005236",
+                      "surface-bright": "#31394d",
+                      "tertiary-container": "#ff7d76",
+                      "primary-fixed-dim": "#4fdbc8",
+                      "on-surface": "#dae2fd",
+                      "inverse-surface": "#dae2fd",
+                      "on-primary-container": "#00423b",
+                      "secondary": "#4edea3",
+                      "error-container": "#93000a",
+                      "error": "#ffb4ab",
+                      "secondary-container": "#00a572",
+                      "on-background": "#dae2fd",
+                      "secondary-fixed": "#6ffbbe",
+                      "on-secondary-fixed": "#002113",
+                      "on-secondary-container": "#00311f",
+                      "outline": "#859490",
+                      "surface": "#0b1326",
+                      "on-primary-fixed": "#00201c",
+                      "surface-container-highest": "#2d3449",
+                      "outline-variant": "#3c4947"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem",
+                      "md": "0.375rem" // Enforcing 6px
+              },
+              "fontFamily": {
+                      "headline": ["Inter", "sans-serif"],
+                      "body": ["Inter", "sans-serif"],
+                      "label": ["Inter", "sans-serif"],
+                      "mono": ["JetBrains Mono", "monospace"]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .data-mono { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased min-h-screen">
+<!-- SideNavBar Component -->
+<nav class="h-screen w-64 fixed left-0 top-0 z-50 bg-[#0b1326] dark:bg-[#0b1326] bg-[#171f33] border-none flex flex-col h-full py-6 font-['Inter'] font-medium antialiased tracking-tight">
+<div class="px-6 mb-10 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-container text-3xl">api</span>
+<div>
+<h1 class="font-['Inter'] font-black text-[#14b8a6] tracking-tighter text-xl">ALPHASNIPER</h1>
+<p class="text-xs text-on-surface-variant uppercase tracking-widest font-semibold mt-0.5">Precision Terminal</p>
+</div>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full bg-primary-container text-on-primary-container font-bold py-3 px-4 rounded-md flex items-center justify-center gap-2 hover:brightness-110 transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                EXECUTE TRADE
+            </button>
+</div>
+<div class="flex-1 overflow-y-auto px-2 space-y-1">
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-3 px-4 transition-colors hover:bg-[#2d3449] transition-all duration-150 rounded-md" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-3 px-4 transition-colors hover:bg-[#2d3449] transition-all duration-150 rounded-md" href="#">
+<span class="material-symbols-outlined">newspaper</span>
+                News Feed
+            </a>
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-3 px-4 transition-colors hover:bg-[#2d3449] transition-all duration-150 rounded-md" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                Sentiment
+            </a>
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-3 px-4 transition-colors hover:bg-[#2d3449] transition-all duration-150 rounded-md" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+                Portfolios
+            </a>
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-3 px-4 transition-colors hover:bg-[#2d3449] transition-all duration-150 rounded-md" href="#">
+<span class="material-symbols-outlined">query_stats</span>
+                Markets
+            </a>
+<a class="flex items-center gap-3 text-[#14b8a6] border-l-2 border-[#14b8a6] bg-[#171f33] py-3 px-4 rounded-r-md" href="#">
+<span class="material-symbols-outlined">trending_down</span>
+                Short Interest
+            </a>
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-3 px-4 transition-colors hover:bg-[#2d3449] transition-all duration-150 rounded-md" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</div>
+<div class="mt-auto px-2 pt-4 space-y-1">
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-3 px-4 transition-colors hover:bg-[#2d3449] transition-all duration-150 rounded-md" href="#">
+<span class="material-symbols-outlined">notifications</span>
+                Notifications
+            </a>
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-3 px-4 transition-colors hover:bg-[#2d3449] transition-all duration-150 rounded-md" href="#">
+<span class="material-symbols-outlined">person</span>
+                Profile
+            </a>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<div class="ml-64 flex flex-col min-h-screen">
+<!-- TopNavBar Component -->
+<header class="fixed top-0 right-0 left-64 h-16 z-40 bg-[#0b1326]/80 backdrop-blur-xl bg-[#171f33] border-none flex items-center justify-between px-8 w-full font-['Inter'] text-sm uppercase tracking-wider">
+<div class="flex items-center gap-8 h-full">
+<a class="text-slate-400 font-semibold hover:text-[#4fdbc8] cursor-pointer h-full flex items-center transition-colors" href="#">Markets</a>
+<a class="text-slate-400 font-semibold hover:text-[#4fdbc8] cursor-pointer h-full flex items-center transition-colors" href="#">Screener</a>
+<a class="text-slate-400 font-semibold hover:text-[#4fdbc8] cursor-pointer h-full flex items-center transition-colors" href="#">Alerts</a>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative bg-surface-container-lowest rounded-md flex items-center px-3 py-1.5 focus-within:ring-1 focus-within:ring-primary/50 transition-all">
+<span class="material-symbols-outlined text-on-surface-variant text-sm mr-2">search</span>
+<input class="bg-transparent border-none text-on-surface text-sm focus:ring-0 p-0 w-48 placeholder-on-surface-variant/50 font-mono" placeholder="Search Ticker..." type="text"/>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<button class="hover:text-primary transition-colors flex items-center scale-95 active:scale-100 transition-transform"><span class="material-symbols-outlined">account_balance_wallet</span></button>
+<button class="hover:text-primary transition-colors flex items-center scale-95 active:scale-100 transition-transform"><span class="material-symbols-outlined">sync</span></button>
+</div>
+<button class="bg-primary-container text-on-primary-container px-4 py-1.5 rounded-md font-bold text-xs hover:brightness-110 transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">add</span>
+                    Trade
+                </button>
+</div>
+</header>
+<!-- Page Content -->
+<main class="flex-1 mt-16 p-8">
+<!-- Page Header -->
+<div class="mb-8">
+<h2 class="text-3xl font-bold text-on-surface tracking-tight">Short Interest</h2>
+<p class="text-on-surface-variant text-sm mt-1">Daily ORTEX data</p>
+</div>
+<!-- Top Row Widgets -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<!-- Highest Squeeze Score -->
+<div class="bg-surface-container rounded-md p-5 border border-error/20 shadow-[0_0_15px_rgba(255,180,171,0.05)] relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-error/10 blur-2xl rounded-full -mr-10 -mt-10 pointer-events-none"></div>
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-on-surface-variant text-xs uppercase tracking-widest font-semibold mb-2">Highest Squeeze Score</h3>
+<div class="flex items-baseline gap-2">
+<span class="data-mono text-2xl font-bold text-primary">GME</span>
+<span class="text-xs text-on-surface-variant">Gamestop Corp.</span>
+</div>
+</div>
+<div class="bg-error-container text-on-error-container font-bold text-2xl px-4 py-2 rounded-md data-mono shadow-[0_0_10px_rgba(255,180,171,0.2)]">
+                            94
+                        </div>
+</div>
+</div>
+<!-- Most Shorted -->
+<div class="bg-surface-container rounded-md p-5 border border-outline-variant/10">
+<h3 class="text-on-surface-variant text-xs uppercase tracking-widest font-semibold mb-2">Most Shorted</h3>
+<div class="flex justify-between items-end mt-2">
+<div class="flex items-baseline gap-2">
+<span class="data-mono text-2xl font-bold text-primary">CVNA</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="data-mono text-xl font-medium text-error">42.5%</span>
+<span class="text-xs text-on-surface-variant mt-1">of Float</span>
+</div>
+</div>
+</div>
+<!-- Avg Days to Cover -->
+<div class="bg-surface-container rounded-md p-5 border border-outline-variant/10">
+<h3 class="text-on-surface-variant text-xs uppercase tracking-widest font-semibold mb-2">Avg. Days to Cover</h3>
+<div class="flex justify-between items-end mt-2">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-3xl opacity-50">schedule</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="data-mono text-2xl font-medium text-on-surface">5.8</span>
+<span class="text-xs text-on-surface-variant mt-1">Days</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Data Table Card -->
+<div class="bg-surface-container rounded-md overflow-hidden border border-outline-variant/10">
+<div class="p-4 border-b border-outline-variant/20 flex justify-between items-center bg-surface-container-high">
+<h3 class="text-sm font-semibold text-on-surface uppercase tracking-wider">Live Short Data</h3>
+<div class="flex gap-2">
+<button class="bg-surface-container-lowest text-on-surface-variant hover:text-primary px-3 py-1 rounded text-xs transition-colors border border-outline-variant/30 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">filter_list</span> Filter
+                        </button>
+<button class="bg-surface-container-lowest text-on-surface-variant hover:text-primary px-3 py-1 rounded text-xs transition-colors border border-outline-variant/30 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">download</span> Export
+                        </button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-xs text-on-surface-variant uppercase tracking-wider font-semibold border-b border-outline-variant/15">
+<th class="p-4 pl-6 w-12 text-center">#</th>
+<th class="p-4">Ticker</th>
+<th class="p-4 text-right">Short % Float</th>
+<th class="p-4 text-right">Days to Cover</th>
+<th class="p-4 text-right">Borrow Fee %</th>
+<th class="p-4 text-center">Squeeze Score</th>
+<th class="p-4 text-right pr-6">Report Date</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<!-- Row 1 -->
+<tr class="border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors group">
+<td class="p-4 pl-6 text-center text-on-surface-variant/50 text-xs data-mono">1</td>
+<td class="p-4 relative">
+<div class="absolute left-0 top-0 bottom-0 w-0.5 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="data-mono font-bold text-primary">AMC</span>
+</td>
+<td class="p-4 text-right data-mono text-error font-medium">28.4%</td>
+<td class="p-4 text-right data-mono">4.2</td>
+<td class="p-4 text-right data-mono text-error">125.4%</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-error-container text-on-error-container data-mono text-xs font-bold ring-1 ring-error/30">88</span>
+</td>
+<td class="p-4 text-right pr-6 data-mono text-on-surface-variant text-xs">Today</td>
+</tr>
+<!-- Row 2 -->
+<tr class="border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors group">
+<td class="p-4 pl-6 text-center text-on-surface-variant/50 text-xs data-mono">2</td>
+<td class="p-4 relative">
+<div class="absolute left-0 top-0 bottom-0 w-0.5 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="data-mono font-bold text-primary">SPCE</span>
+</td>
+<td class="p-4 text-right data-mono text-error font-medium">22.1%</td>
+<td class="p-4 text-right data-mono">6.5</td>
+<td class="p-4 text-right data-mono text-tertiary-container">84.2%</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-error-container text-on-error-container data-mono text-xs font-bold ring-1 ring-error/30">76</span>
+</td>
+<td class="p-4 text-right pr-6 data-mono text-on-surface-variant text-xs">Today</td>
+</tr>
+<!-- Row 3 -->
+<tr class="border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors group">
+<td class="p-4 pl-6 text-center text-on-surface-variant/50 text-xs data-mono">3</td>
+<td class="p-4 relative">
+<div class="absolute left-0 top-0 bottom-0 w-0.5 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="data-mono font-bold text-primary">BBBY</span>
+</td>
+<td class="p-4 text-right data-mono text-error font-medium">45.8%</td>
+<td class="p-4 text-right data-mono">2.1</td>
+<td class="p-4 text-right data-mono text-error">210.5%</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-error-container text-on-error-container data-mono text-xs font-bold ring-1 ring-error/30">95</span>
+</td>
+<td class="p-4 text-right pr-6 data-mono text-on-surface-variant text-xs">Today</td>
+</tr>
+<!-- Row 4 -->
+<tr class="border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors group">
+<td class="p-4 pl-6 text-center text-on-surface-variant/50 text-xs data-mono">4</td>
+<td class="p-4 relative">
+<div class="absolute left-0 top-0 bottom-0 w-0.5 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="data-mono font-bold text-primary">MARA</span>
+</td>
+<td class="p-4 text-right data-mono text-tertiary-container font-medium">18.5%</td>
+<td class="p-4 text-right data-mono">3.4</td>
+<td class="p-4 text-right data-mono text-tertiary-container">45.2%</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-tertiary-container/20 text-tertiary-container data-mono text-xs font-bold ring-1 ring-tertiary-container/30">62</span>
+</td>
+<td class="p-4 text-right pr-6 data-mono text-on-surface-variant text-xs">-1d</td>
+</tr>
+<!-- Row 5 -->
+<tr class="border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors group">
+<td class="p-4 pl-6 text-center text-on-surface-variant/50 text-xs data-mono">5</td>
+<td class="p-4 relative">
+<div class="absolute left-0 top-0 bottom-0 w-0.5 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="data-mono font-bold text-primary">CVNA</span>
+</td>
+<td class="p-4 text-right data-mono text-error font-medium">42.5%</td>
+<td class="p-4 text-right data-mono">8.2</td>
+<td class="p-4 text-right data-mono text-error">95.1%</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-error-container text-on-error-container data-mono text-xs font-bold ring-1 ring-error/30">81</span>
+</td>
+<td class="p-4 text-right pr-6 data-mono text-on-surface-variant text-xs">-1d</td>
+</tr>
+<!-- Row 6 -->
+<tr class="border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors group">
+<td class="p-4 pl-6 text-center text-on-surface-variant/50 text-xs data-mono">6</td>
+<td class="p-4 relative">
+<div class="absolute left-0 top-0 bottom-0 w-0.5 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="data-mono font-bold text-primary">UPST</span>
+</td>
+<td class="p-4 text-right data-mono text-error font-medium">31.2%</td>
+<td class="p-4 text-right data-mono">5.1</td>
+<td class="p-4 text-right data-mono text-tertiary-container">65.8%</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-error-container text-on-error-container data-mono text-xs font-bold ring-1 ring-error/30">74</span>
+</td>
+<td class="p-4 text-right pr-6 data-mono text-on-surface-variant text-xs">-1d</td>
+</tr>
+<!-- Row 7 -->
+<tr class="border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors group">
+<td class="p-4 pl-6 text-center text-on-surface-variant/50 text-xs data-mono">7</td>
+<td class="p-4 relative">
+<div class="absolute left-0 top-0 bottom-0 w-0.5 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="data-mono font-bold text-primary">AI</span>
+</td>
+<td class="p-4 text-right data-mono text-tertiary-container font-medium">15.8%</td>
+<td class="p-4 text-right data-mono">2.8</td>
+<td class="p-4 text-right data-mono">18.4%</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-tertiary-container/20 text-tertiary-container data-mono text-xs font-bold ring-1 ring-tertiary-container/30">55</span>
+</td>
+<td class="p-4 text-right pr-6 data-mono text-on-surface-variant text-xs">-2d</td>
+</tr>
+<!-- Row 8 -->
+<tr class="border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors group">
+<td class="p-4 pl-6 text-center text-on-surface-variant/50 text-xs data-mono">8</td>
+<td class="p-4 relative">
+<div class="absolute left-0 top-0 bottom-0 w-0.5 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="data-mono font-bold text-primary">LCID</span>
+</td>
+<td class="p-4 text-right data-mono text-error font-medium">25.4%</td>
+<td class="p-4 text-right data-mono">12.4</td>
+<td class="p-4 text-right data-mono text-tertiary-container">42.1%</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-error-container text-on-error-container data-mono text-xs font-bold ring-1 ring-error/30">71</span>
+</td>
+<td class="p-4 text-right pr-6 data-mono text-on-surface-variant text-xs">-2d</td>
+</tr>
+<!-- Row 9 -->
+<tr class="border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors group">
+<td class="p-4 pl-6 text-center text-on-surface-variant/50 text-xs data-mono">9</td>
+<td class="p-4 relative">
+<div class="absolute left-0 top-0 bottom-0 w-0.5 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="data-mono font-bold text-primary">NKLA</span>
+</td>
+<td class="p-4 text-right data-mono text-error font-medium">21.8%</td>
+<td class="p-4 text-right data-mono">4.5</td>
+<td class="p-4 text-right data-mono text-tertiary-container">88.5%</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-error-container text-on-error-container data-mono text-xs font-bold ring-1 ring-error/30">78</span>
+</td>
+<td class="p-4 text-right pr-6 data-mono text-on-surface-variant text-xs">-2d</td>
+</tr>
+<!-- Row 10 -->
+<tr class="border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors group">
+<td class="p-4 pl-6 text-center text-on-surface-variant/50 text-xs data-mono">10</td>
+<td class="p-4 relative">
+<div class="absolute left-0 top-0 bottom-0 w-0.5 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="data-mono font-bold text-primary">BYND</span>
+</td>
+<td class="p-4 text-right data-mono text-error font-medium">38.2%</td>
+<td class="p-4 text-right data-mono">7.8</td>
+<td class="p-4 text-right data-mono text-error">105.2%</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-error-container text-on-error-container data-mono text-xs font-bold ring-1 ring-error/30">85</span>
+</td>
+<td class="p-4 text-right pr-6 data-mono text-on-surface-variant text-xs">-3d</td>
+</tr>
+<!-- Row 11 -->
+<tr class="border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors group">
+<td class="p-4 pl-6 text-center text-on-surface-variant/50 text-xs data-mono">11</td>
+<td class="p-4 relative">
+<div class="absolute left-0 top-0 bottom-0 w-0.5 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="data-mono font-bold text-primary">PLUG</span>
+</td>
+<td class="p-4 text-right data-mono text-tertiary-container font-medium">19.5%</td>
+<td class="p-4 text-right data-mono">6.2</td>
+<td class="p-4 text-right data-mono text-tertiary-container">25.4%</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-tertiary-container/20 text-tertiary-container data-mono text-xs font-bold ring-1 ring-tertiary-container/30">58</span>
+</td>
+<td class="p-4 text-right pr-6 data-mono text-on-surface-variant text-xs">-3d</td>
+</tr>
+<!-- Row 12 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="p-4 pl-6 text-center text-on-surface-variant/50 text-xs data-mono">12</td>
+<td class="p-4 relative">
+<div class="absolute left-0 top-0 bottom-0 w-0.5 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="data-mono font-bold text-primary">AAPL</span>
+</td>
+<td class="p-4 text-right data-mono text-on-surface font-medium">0.8%</td>
+<td class="p-4 text-right data-mono">1.2</td>
+<td class="p-4 text-right data-mono">0.3%</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-secondary-container/20 text-secondary data-mono text-xs font-bold ring-1 ring-secondary/30">12</span>
+</td>
+<td class="p-4 text-right pr-6 data-mono text-on-surface-variant text-xs">-3d</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 border-t border-outline-variant/15 flex justify-between items-center text-xs text-on-surface-variant bg-surface-container-low">
+<span>Showing 1-12 of 4,281</span>
+<div class="flex gap-1">
+<button class="px-2 py-1 rounded hover:bg-surface-container disabled:opacity-50" disabled=""><span class="material-symbols-outlined text-sm">chevron_left</span></button>
+<button class="px-2 py-1 rounded hover:bg-surface-container"><span class="material-symbols-outlined text-sm">chevron_right</span></button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

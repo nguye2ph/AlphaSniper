@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AlphaSniper - Insider Trades</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Base styles for scrollbars to match terminal feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b1326; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2d3449; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3c4947; 
+        }
+    </style>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-bright": "#31394d",
+                        "on-tertiary": "#68000a",
+                        "on-error-container": "#ffdad6",
+                        "on-background": "#dae2fd",
+                        "surface-container-high": "#222a3d",
+                        "on-tertiary-fixed": "#410004",
+                        "primary-container": "#14b8a6",
+                        "on-primary-container": "#00423b",
+                        "error-container": "#93000a",
+                        "tertiary-fixed": "#ffdad7",
+                        "outline": "#859490",
+                        "on-primary-fixed-variant": "#005048",
+                        "on-primary-fixed": "#00201c",
+                        "on-primary": "#003731",
+                        "background": "#0b1326",
+                        "tertiary-fixed-dim": "#ffb3ad",
+                        "outline-variant": "#3c4947",
+                        "on-secondary-fixed": "#002113",
+                        "surface-container-lowest": "#060e20",
+                        "tertiary-container": "#ff7d76",
+                        "primary-fixed-dim": "#4fdbc8",
+                        "on-tertiary-fixed-variant": "#930013",
+                        "on-secondary-container": "#00311f",
+                        "inverse-on-surface": "#283044",
+                        "surface-variant": "#2d3449",
+                        "surface-container-highest": "#2d3449",
+                        "surface-tint": "#4fdbc8",
+                        "on-tertiary-container": "#7b000e",
+                        "on-error": "#690005",
+                        "surface": "#0b1326",
+                        "on-secondary": "#003824",
+                        "secondary-container": "#00a572",
+                        "secondary": "#4edea3",
+                        "error": "#ffb4ab",
+                        "on-surface-variant": "#bbcac6",
+                        "on-surface": "#dae2fd",
+                        "inverse-surface": "#dae2fd",
+                        "surface-container-low": "#131b2e",
+                        "surface-container": "#171f33",
+                        "tertiary": "#ffb3ad",
+                        "on-secondary-fixed-variant": "#005236",
+                        "secondary-fixed": "#6ffbbe",
+                        "surface-dim": "#0b1326",
+                        "primary-fixed": "#71f8e4",
+                        "secondary-fixed-dim": "#4edea3",
+                        "primary": "#4fdbc8",
+                        "inverse-primary": "#006b5f"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface font-body antialiased selection:bg-primary/30 selection:text-primary-fixed flex h-screen overflow-hidden">
+<!-- SideNavBar -->
+<nav class="bg-[#0b1326] dark:bg-[#0b1326] h-screen w-64 fixed left-0 top-0 z-50 bg-[#171f33] border-none flat no shadows flex flex-col h-full py-6">
+<!-- Logo -->
+<div class="px-6 mb-8 flex items-center gap-3">
+<span class="material-symbols-outlined text-[#14b8a6] text-3xl">api</span>
+<div>
+<h1 class="font-['Inter'] font-black text-[#14b8a6] tracking-tighter text-xl">ALPHASNIPER</h1>
+<p class="text-on-surface-variant text-[10px] uppercase tracking-widest font-semibold mt-0.5">Precision Terminal</p>
+</div>
+</div>
+<!-- Main Nav -->
+<div class="flex-1 overflow-y-auto px-2 space-y-1">
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-3 px-4 transition-colors hover:bg-[#2d3449] transition-all duration-150 rounded font-['Inter'] font-medium antialiased tracking-tight" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+<span class="text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-3 px-4 transition-colors hover:bg-[#2d3449] transition-all duration-150 rounded font-['Inter'] font-medium antialiased tracking-tight" href="#">
+<span class="material-symbols-outlined text-[20px]">newspaper</span>
+<span class="text-sm">News Feed</span>
+</a>
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-3 px-4 transition-colors hover:bg-[#2d3449] transition-all duration-150 rounded font-['Inter'] font-medium antialiased tracking-tight" href="#">
+<span class="material-symbols-outlined text-[20px]">analytics</span>
+<span class="text-sm">Sentiment</span>
+</a>
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-3 px-4 transition-colors hover:bg-[#2d3449] transition-all duration-150 rounded font-['Inter'] font-medium antialiased tracking-tight" href="#">
+<span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+<span class="text-sm">Portfolios</span>
+</a>
+<a class="flex items-center gap-3 text-[#14b8a6] border-l-2 border-[#14b8a6] bg-[#171f33] py-3 px-4 Active: opacity-90 transition-opacity font-['Inter'] font-medium antialiased tracking-tight" href="#">
+<span class="material-symbols-outlined text-[20px]">query_stats</span>
+<span class="text-sm">Markets</span>
+</a>
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-3 px-4 transition-colors hover:bg-[#2d3449] transition-all duration-150 rounded font-['Inter'] font-medium antialiased tracking-tight" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span class="text-sm">Settings</span>
+</a>
+</div>
+<!-- Footer Nav -->
+<div class="mt-auto px-2 space-y-1 pt-4 border-t border-outline-variant/10">
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-3 px-4 transition-colors hover:bg-[#2d3449] transition-all duration-150 rounded font-['Inter'] font-medium antialiased tracking-tight" href="#">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="text-sm">Notifications</span>
+</a>
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-3 px-4 transition-colors hover:bg-[#2d3449] transition-all duration-150 rounded font-['Inter'] font-medium antialiased tracking-tight" href="#">
+<span class="material-symbols-outlined text-[20px]">person</span>
+<span class="text-sm">Profile</span>
+</a>
+<div class="px-4 pt-4">
+<button class="w-full bg-[#14b8a6] hover:brightness-110 text-[#00423b] font-bold py-2.5 rounded text-xs tracking-wider uppercase transition-all shadow-[0_0_15px_rgba(20,184,166,0.15)] flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">bolt</span>
+                    EXECUTE TRADE
+                </button>
+</div>
+</div>
+</nav>
+<!-- Main Wrapper -->
+<div class="flex-1 ml-64 flex flex-col h-screen relative bg-surface">
+<!-- TopNavBar -->
+<header class="bg-[#0b1326]/80 backdrop-blur-xl fixed top-0 right-0 left-64 h-16 z-40 bg-[#171f33] border-none flat no shadows flex items-center justify-between px-8 w-full">
+<!-- Left: Links -->
+<div class="flex items-center gap-8 h-full">
+<a class="flex items-center h-full text-[#14b8a6] border-b border-[#14b8a6] font-['Inter'] text-sm uppercase tracking-wider scale-95 active:scale-100 transition-transform" href="#">Markets</a>
+<a class="flex items-center h-full text-slate-400 font-semibold hover:text-[#4fdbc8] cursor-pointer font-['Inter'] text-sm uppercase tracking-wider scale-95 active:scale-100 transition-transform" href="#">Screener</a>
+<a class="flex items-center h-full text-slate-400 font-semibold hover:text-[#4fdbc8] cursor-pointer font-['Inter'] text-sm uppercase tracking-wider scale-95 active:scale-100 transition-transform" href="#">Alerts</a>
+</div>
+<!-- Right: Actions -->
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-slate-400">
+<button class="hover:text-[#4fdbc8] cursor-pointer transition-colors scale-95 active:scale-100 transition-transform">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</button>
+<button class="hover:text-[#4fdbc8] cursor-pointer transition-colors scale-95 active:scale-100 transition-transform">
+<span class="material-symbols-outlined">sync</span>
+</button>
+</div>
+<button class="text-[#14b8a6] font-['Inter'] text-sm uppercase tracking-wider font-bold hover:text-[#4fdbc8] cursor-pointer transition-colors scale-95 active:scale-100 transition-transform">Trade</button>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 mt-16 overflow-y-auto p-8 pt-6">
+<!-- Page Header -->
+<div class="mb-8 flex items-end justify-between">
+<div>
+<h2 class="text-3xl font-headline font-bold text-on-surface tracking-tight">Insider Trades</h2>
+<p class="text-sm font-label text-on-surface-variant mt-1 tracking-wide">Recent SEC Form 4 filings</p>
+</div>
+<!-- Quick Stats / Context -->
+<div class="flex gap-6 text-right">
+<div>
+<div class="text-[10px] font-label uppercase tracking-widest text-on-surface-variant mb-1">24H Volume</div>
+<div class="font-mono text-lg font-medium text-secondary">$1.42B</div>
+</div>
+<div>
+<div class="text-[10px] font-label uppercase tracking-widest text-on-surface-variant mb-1">Top Sector</div>
+<div class="font-mono text-lg font-medium text-on-surface">Technology</div>
+</div>
+</div>
+</div>
+<!-- Filter Bar Container -->
+<div class="bg-surface-container rounded-lg p-3 mb-6 flex items-center justify-between shadow-[0_4px_24px_rgba(0,0,0,0.2)]">
+<div class="flex items-center gap-3 flex-1">
+<!-- Search Input -->
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded text-sm text-on-surface font-label pl-9 pr-3 py-2 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 placeholder:text-on-surface-variant/70 transition-all" placeholder="Search Ticker or Name..." type="text"/>
+</div>
+<!-- Divider -->
+<div class="w-px h-6 bg-outline-variant/30 mx-2"></div>
+<!-- Filters -->
+<select class="bg-surface-container-lowest border border-outline-variant/30 rounded text-sm text-on-surface font-label px-3 py-2 focus:outline-none focus:border-primary/50 appearance-none pr-8 relative cursor-pointer">
+<option>All Types</option>
+<option>Buy</option>
+<option>Sell</option>
+<option>Exercise</option>
+</select>
+<select class="bg-surface-container-lowest border border-outline-variant/30 rounded text-sm text-on-surface font-label px-3 py-2 focus:outline-none focus:border-primary/50 appearance-none pr-8 relative cursor-pointer">
+<option>Last 24 Hours</option>
+<option>Last 7 Days</option>
+<option>Last 30 Days</option>
+</select>
+</div>
+<!-- Actions -->
+<div class="flex items-center gap-3">
+<button class="p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest rounded transition-colors" title="Export CSV">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest rounded transition-colors" title="Refresh Data">
+<span class="material-symbols-outlined text-[20px]">refresh</span>
+</button>
+</div>
+</div>
+<!-- Data Table Container -->
+<div class="bg-surface-container rounded-lg overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low border-b border-outline-variant/20">
+<tr>
+<th class="py-3 px-4 font-label text-[11px] uppercase tracking-wider text-on-surface-variant font-semibold">Ticker</th>
+<th class="py-3 px-4 font-label text-[11px] uppercase tracking-wider text-on-surface-variant font-semibold">Officer Name</th>
+<th class="py-3 px-4 font-label text-[11px] uppercase tracking-wider text-on-surface-variant font-semibold">Title</th>
+<th class="py-3 px-4 font-label text-[11px] uppercase tracking-wider text-on-surface-variant font-semibold text-center">Type</th>
+<th class="py-3 px-4 font-label text-[11px] uppercase tracking-wider text-on-surface-variant font-semibold text-right">Shares</th>
+<th class="py-3 px-4 font-label text-[11px] uppercase tracking-wider text-on-surface-variant font-semibold text-right">Price</th>
+<th class="py-3 px-4 font-label text-[11px] uppercase tracking-wider text-on-surface-variant font-semibold text-right">Value</th>
+<th class="py-3 px-4 font-label text-[11px] uppercase tracking-wider text-on-surface-variant font-semibold text-right">Filing Date</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10 text-sm">
+<!-- Row 1: BUY -->
+<tr class="group hover:bg-surface-container-low transition-colors cursor-default">
+<td class="py-2.5 px-4 font-mono font-bold text-primary relative">
+<div class="absolute left-0 top-0 bottom-0 w-[2px] bg-secondary-container opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    NVDA
+                                </td>
+<td class="py-2.5 px-4 font-body text-on-surface whitespace-nowrap">Huang Jen Hsun</td>
+<td class="py-2.5 px-4 font-body text-on-surface-variant text-xs truncate max-w-[120px]" title="Chief Executive Officer">CEO</td>
+<td class="py-2.5 px-4 text-center">
+<span class="inline-block bg-secondary-container/20 text-secondary font-bold text-[10px] px-2 py-0.5 rounded uppercase tracking-widest">Buy</span>
+</td>
+<td class="py-2.5 px-4 font-mono text-on-surface text-right tabular-nums">25,000</td>
+<td class="py-2.5 px-4 font-mono text-on-surface text-right tabular-nums">$875.42</td>
+<td class="py-2.5 px-4 font-mono text-secondary text-right tabular-nums">+$21,885,500</td>
+<td class="py-2.5 px-4 font-mono text-on-surface-variant text-xs text-right whitespace-nowrap">12m ago</td>
+</tr>
+<!-- Row 2: SELL -->
+<tr class="group hover:bg-surface-container-low transition-colors cursor-default">
+<td class="py-2.5 px-4 font-mono font-bold text-primary relative">
+<div class="absolute left-0 top-0 bottom-0 w-[2px] bg-error-container opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    TSLA
+                                </td>
+<td class="py-2.5 px-4 font-body text-on-surface whitespace-nowrap">Musk Elon</td>
+<td class="py-2.5 px-4 font-body text-on-surface-variant text-xs truncate max-w-[120px]" title="Chief Executive Officer">CEO</td>
+<td class="py-2.5 px-4 text-center">
+<span class="inline-block bg-error-container/20 text-error font-bold text-[10px] px-2 py-0.5 rounded uppercase tracking-widest">Sell</span>
+</td>
+<td class="py-2.5 px-4 font-mono text-on-surface text-right tabular-nums">105,400</td>
+<td class="py-2.5 px-4 font-mono text-on-surface text-right tabular-nums">$175.22</td>
+<td class="py-2.5 px-4 font-mono text-error text-right tabular-nums">-$18,468,188</td>
+<td class="py-2.5 px-4 font-mono text-on-surface-variant text-xs text-right whitespace-nowrap">45m ago</td>
+</tr>
+<!-- Row 3: EXERCISE -->
+<tr class="group hover:bg-surface-container-low transition-colors cursor-default">
+<td class="py-2.5 px-4 font-mono font-bold text-primary relative">
+<div class="absolute left-0 top-0 bottom-0 w-[2px] bg-surface-variant opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    AAPL
+                                </td>
+<td class="py-2.5 px-4 font-body text-on-surface whitespace-nowrap">Cook Timothy D</td>
+<td class="py-2.5 px-4 font-body text-on-surface-variant text-xs truncate max-w-[120px]">CEO</td>
+<td class="py-2.5 px-4 text-center">
+<span class="inline-block bg-surface-variant text-on-surface-variant font-bold text-[10px] px-2 py-0.5 rounded uppercase tracking-widest">Opt</span>
+</td>
+<td class="py-2.5 px-4 font-mono text-on-surface text-right tabular-nums">50,000</td>
+<td class="py-2.5 px-4 font-mono text-on-surface text-right tabular-nums">$45.10</td>
+<td class="py-2.5 px-4 font-mono text-on-surface-variant text-right tabular-nums">$2,255,000</td>
+<td class="py-2.5 px-4 font-mono text-on-surface-variant text-xs text-right whitespace-nowrap">1h ago</td>
+</tr>
+<!-- Row 4: BUY -->
+<tr class="group hover:bg-surface-container-low transition-colors cursor-default">
+<td class="py-2.5 px-4 font-mono font-bold text-primary relative">
+<div class="absolute left-0 top-0 bottom-0 w-[2px] bg-secondary-container opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    PLTR
+                                </td>
+<td class="py-2.5 px-4 font-body text-on-surface whitespace-nowrap">Karp Alexander</td>
+<td class="py-2.5 px-4 font-body text-on-surface-variant text-xs truncate max-w-[120px]">CEO</td>
+<td class="py-2.5 px-4 text-center">
+<span class="inline-block bg-secondary-container/20 text-secondary font-bold text-[10px] px-2 py-0.5 rounded uppercase tracking-widest">Buy</span>
+</td>
+<td class="py-2.5 px-4 font-mono text-on-surface text-right tabular-nums">250,000</td>
+<td class="py-2.5 px-4 font-mono text-on-surface text-right tabular-nums">$22.45</td>
+<td class="py-2.5 px-4 font-mono text-secondary text-right tabular-nums">+$5,612,500</td>
+<td class="py-2.5 px-4 font-mono text-on-surface-variant text-xs text-right whitespace-nowrap">2h ago</td>
+</tr>
+<!-- Row 5: SELL -->
+<tr class="group hover:bg-surface-container-low transition-colors cursor-default">
+<td class="py-2.5 px-4 font-mono font-bold text-primary relative">
+<div class="absolute left-0 top-0 bottom-0 w-[2px] bg-error-container opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    MSFT
+                                </td>
+<td class="py-2.5 px-4 font-body text-on-surface whitespace-nowrap">Nadella Satya</td>
+<td class="py-2.5 px-4 font-body text-on-surface-variant text-xs truncate max-w-[120px]">CEO</td>
+<td class="py-2.5 px-4 text-center">
+<span class="inline-block bg-error-container/20 text-error font-bold text-[10px] px-2 py-0.5 rounded uppercase tracking-widest">Sell</span>
+</td>
+<td class="py-2.5 px-4 font-mono text-on-surface text-right tabular-nums">15,000</td>
+<td class="py-2.5 px-4 font-mono text-on-surface text-right tabular-nums">$415.80</td>
+<td class="py-2.5 px-4 font-mono text-error text-right tabular-nums">-$6,237,000</td>
+<td class="py-2.5 px-4 font-mono text-on-surface-variant text-xs text-right whitespace-nowrap">3h ago</td>
+</tr>
+<!-- Row 6: SELL -->
+<tr class="group hover:bg-surface-container-low transition-colors cursor-default">
+<td class="py-2.5 px-4 font-mono font-bold text-primary relative">
+<div class="absolute left-0 top-0 bottom-0 w-[2px] bg-error-container opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    META
+                                </td>
+<td class="py-2.5 px-4 font-body text-on-surface whitespace-nowrap">Zuckerberg Mark</td>
+<td class="py-2.5 px-4 font-body text-on-surface-variant text-xs truncate max-w-[120px]">COB/CEO</td>
+<td class="py-2.5 px-4 text-center">
+<span class="inline-block bg-error-container/20 text-error font-bold text-[10px] px-2 py-0.5 rounded uppercase tracking-widest">Sell</span>
+</td>
+<td class="py-2.5 px-4 font-mono text-on-surface text-right tabular-nums">18,500</td>
+<td class="py-2.5 px-4 font-mono text-on-surface text-right tabular-nums">$495.20</td>
+<td class="py-2.5 px-4 font-mono text-error text-right tabular-nums">-$9,161,200</td>
+<td class="py-2.5 px-4 font-mono text-on-surface-variant text-xs text-right whitespace-nowrap">4h ago</td>
+</tr>
+<!-- Row 7: BUY -->
+<tr class="group hover:bg-surface-container-low transition-colors cursor-default">
+<td class="py-2.5 px-4 font-mono font-bold text-primary relative">
+<div class="absolute left-0 top-0 bottom-0 w-[2px] bg-secondary-container opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    COIN
+                                </td>
+<td class="py-2.5 px-4 font-body text-on-surface whitespace-nowrap">Armstrong Brian</td>
+<td class="py-2.5 px-4 font-body text-on-surface-variant text-xs truncate max-w-[120px]">CEO</td>
+<td class="py-2.5 px-4 text-center">
+<span class="inline-block bg-secondary-container/20 text-secondary font-bold text-[10px] px-2 py-0.5 rounded uppercase tracking-widest">Buy</span>
+</td>
+<td class="py-2.5 px-4 font-mono text-on-surface text-right tabular-nums">5,000</td>
+<td class="py-2.5 px-4 font-mono text-on-surface text-right tabular-nums">$245.60</td>
+<td class="py-2.5 px-4 font-mono text-secondary text-right tabular-nums">+$1,228,000</td>
+<td class="py-2.5 px-4 font-mono text-on-surface-variant text-xs text-right whitespace-nowrap">5h ago</td>
+</tr>
+<!-- Row 8: EXERCISE -->
+<tr class="group hover:bg-surface-container-low transition-colors cursor-default">
+<td class="py-2.5 px-4 font-mono font-bold text-primary relative">
+<div class="absolute left-0 top-0 bottom-0 w-[2px] bg-surface-variant opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    AMZN
+                                </td>
+<td class="py-2.5 px-4 font-body text-on-surface whitespace-nowrap">Jassy Andrew R</td>
+<td class="py-2.5 px-4 font-body text-on-surface-variant text-xs truncate max-w-[120px]">CEO</td>
+<td class="py-2.5 px-4 text-center">
+<span class="inline-block bg-surface-variant text-on-surface-variant font-bold text-[10px] px-2 py-0.5 rounded uppercase tracking-widest">Opt</span>
+</td>
+<td class="py-2.5 px-4 font-mono text-on-surface text-right tabular-nums">85,000</td>
+<td class="py-2.5 px-4 font-mono text-on-surface text-right tabular-nums">$12.50</td>
+<td class="py-2.5 px-4 font-mono text-on-surface-variant text-right tabular-nums">$1,062,500</td>
+<td class="py-2.5 px-4 font-mono text-on-surface-variant text-xs text-right whitespace-nowrap">6h ago</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination / Footer -->
+<div class="bg-surface-container border-t border-outline-variant/20 px-4 py-3 flex items-center justify-between">
+<span class="text-xs font-label text-on-surface-variant">Showing 1 to 8 of 1,245 entries</span>
+<div class="flex items-center gap-1">
+<button class="px-2 py-1 text-on-surface-variant hover:text-primary transition-colors disabled:opacity-50"><span class="material-symbols-outlined text-sm">chevron_left</span></button>
+<button class="px-3 py-1 bg-surface-variant text-on-surface rounded text-xs font-mono">1</button>
+<button class="px-3 py-1 text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded text-xs font-mono transition-colors">2</button>
+<button class="px-3 py-1 text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded text-xs font-mono transition-colors">3</button>
+<span class="px-2 text-on-surface-variant text-xs">...</span>
+<button class="px-3 py-1 text-on-surface-variant hover:bg-surface-variant hover:text-on-surface rounded text-xs font-mono transition-colors">156</button>
+<button class="px-2 py-1 text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-sm">chevron_right</span></button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

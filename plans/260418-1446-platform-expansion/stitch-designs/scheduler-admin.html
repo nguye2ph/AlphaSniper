@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ALPHASNIPER - Adaptive Scheduler</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#410004",
+                        "on-tertiary-container": "#7b000e",
+                        "on-secondary-fixed-variant": "#005236",
+                        "tertiary-fixed-dim": "#ffb3ad",
+                        "primary-fixed-dim": "#4fdbc8",
+                        "on-primary-container": "#00423b",
+                        "secondary-container": "#00a572",
+                        "on-secondary-fixed": "#002113",
+                        "surface-container-lowest": "#060e20",
+                        "error-container": "#93000a",
+                        "surface": "#0b1326",
+                        "inverse-primary": "#006b5f",
+                        "surface-container-highest": "#2d3449",
+                        "on-tertiary-fixed-variant": "#930013",
+                        "surface-bright": "#31394d",
+                        "surface-tint": "#4fdbc8",
+                        "inverse-surface": "#dae2fd",
+                        "surface-container-high": "#222a3d",
+                        "outline-variant": "#3c4947",
+                        "on-tertiary": "#68000a",
+                        "on-secondary": "#003824",
+                        "tertiary-fixed": "#ffdad7",
+                        "surface-variant": "#2d3449",
+                        "primary-container": "#14b8a6",
+                        "on-primary-fixed-variant": "#005048",
+                        "on-error": "#690005",
+                        "on-background": "#dae2fd",
+                        "background": "#0b1326",
+                        "outline": "#859490",
+                        "on-surface-variant": "#bbcac6",
+                        "tertiary-container": "#ff7d76",
+                        "surface-container": "#171f33",
+                        "surface-container-low": "#131b2e",
+                        "secondary": "#4edea3",
+                        "primary-fixed": "#71f8e4",
+                        "on-secondary-container": "#00311f",
+                        "tertiary": "#ffb3ad",
+                        "on-primary": "#003731",
+                        "surface-dim": "#0b1326",
+                        "on-error-container": "#ffdad6",
+                        "secondary-fixed": "#6ffbbe",
+                        "error": "#ffb4ab",
+                        "primary": "#4fdbc8",
+                        "secondary-fixed-dim": "#4edea3",
+                        "on-primary-fixed": "#00201c",
+                        "inverse-on-surface": "#283044",
+                        "on-surface": "#dae2fd"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen antialiased selection:bg-primary-container selection:text-on-primary-container overflow-x-hidden flex">
+<!-- SideNavBar Component -->
+<nav class="h-screen w-64 fixed left-0 top-0 z-50 bg-[#0b1326] dark:bg-[#0b1326] flex flex-col py-6 border-r border-surface-container-highest">
+<div class="px-6 mb-8 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">gps_fixed</span>
+<span class="font-['Inter'] font-black text-[#14b8a6] tracking-tighter text-xl">ALPHASNIPER</span>
+</div>
+<div class="flex flex-col flex-1 gap-1 px-2">
+<!-- Inactive -->
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-3 px-4 transition-colors hover:bg-[#2d3449] transition-all duration-150 rounded-lg mx-2" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-medium tracking-tight">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-3 px-4 transition-colors hover:bg-[#2d3449] transition-all duration-150 rounded-lg mx-2" href="#">
+<span class="material-symbols-outlined">newspaper</span>
+<span class="font-medium tracking-tight">News Feed</span>
+</a>
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-3 px-4 transition-colors hover:bg-[#2d3449] transition-all duration-150 rounded-lg mx-2" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-medium tracking-tight">Sentiment</span>
+</a>
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-3 px-4 transition-colors hover:bg-[#2d3449] transition-all duration-150 rounded-lg mx-2" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="font-medium tracking-tight">Portfolios</span>
+</a>
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-3 px-4 transition-colors hover:bg-[#2d3449] transition-all duration-150 rounded-lg mx-2" href="#">
+<span class="material-symbols-outlined">query_stats</span>
+<span class="font-medium tracking-tight">Markets</span>
+</a>
+<!-- Active -->
+<a class="flex items-center gap-3 text-[#14b8a6] border-l-2 border-[#14b8a6] bg-[#171f33] py-3 px-4 rounded-r-lg ml-2 opacity-90 transition-opacity" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-medium tracking-tight">Settings</span>
+</a>
+</div>
+<div class="px-6 mb-6">
+<button class="w-full bg-primary-container text-on-primary-container font-bold py-3 px-4 rounded-lg hover:brightness-110 transition-all text-sm tracking-widest shadow-[0_0_15px_rgba(20,184,166,0.2)]">
+                EXECUTE TRADE
+            </button>
+</div>
+<div class="mt-auto flex flex-col gap-1 px-2 border-t border-surface-container-highest pt-4 mx-4">
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-2 px-4 transition-colors hover:bg-[#2d3449] rounded-lg" href="#">
+<span class="material-symbols-outlined">notifications</span>
+<span class="text-sm font-medium">Notifications</span>
+</a>
+<a class="flex items-center gap-3 text-slate-400 hover:text-slate-200 py-2 px-4 transition-colors hover:bg-[#2d3449] rounded-lg" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-sm font-medium">Profile</span>
+</a>
+</div>
+</nav>
+<!-- TopNavBar Component -->
+<header class="fixed top-0 right-0 left-64 h-16 z-40 bg-[#0b1326]/80 backdrop-blur-xl flex items-center justify-between px-8 border-b border-surface-container-highest">
+<div class="flex items-center gap-8 h-full">
+<!-- Inactive -->
+<a class="h-full flex items-center text-slate-400 font-semibold font-['Inter'] text-sm uppercase tracking-wider hover:text-[#4fdbc8] cursor-pointer transition-colors" href="#">Markets</a>
+<a class="h-full flex items-center text-slate-400 font-semibold font-['Inter'] text-sm uppercase tracking-wider hover:text-[#4fdbc8] cursor-pointer transition-colors" href="#">Screener</a>
+<a class="h-full flex items-center text-slate-400 font-semibold font-['Inter'] text-sm uppercase tracking-wider hover:text-[#4fdbc8] cursor-pointer transition-colors" href="#">Alerts</a>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-slate-400">
+<button class="hover:text-primary transition-colors scale-95 active:scale-100 transition-transform">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</button>
+<button class="hover:text-primary transition-colors scale-95 active:scale-100 transition-transform">
+<span class="material-symbols-outlined">sync</span>
+</button>
+</div>
+<button class="bg-primary-container text-on-primary-container px-4 py-1.5 rounded text-sm font-bold tracking-widest hover:brightness-110 transition-all scale-95 active:scale-100 uppercase">
+                Trade
+            </button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-24 px-8 pb-12 w-full">
+<!-- Page Header -->
+<div class="mb-8">
+<h1 class="text-2xl font-bold tracking-tight text-on-surface mb-1">Adaptive Scheduler</h1>
+<p class="text-on-surface-variant text-sm font-medium">Source configuration &amp; metrics</p>
+</div>
+<!-- Density Main Table -->
+<div class="bg-surface-container rounded-lg border border-outline-variant/20 overflow-hidden mb-8 shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-lowest border-b border-outline-variant/15 text-xs uppercase tracking-widest text-on-surface-variant font-semibold">
+<th class="py-4 px-6 font-['Inter']">Source Name</th>
+<th class="py-4 px-6 font-['Inter']">Status</th>
+<th class="py-4 px-6 font-['Inter'] text-right">Current Interval</th>
+<th class="py-4 px-6 font-['Inter'] text-right">Min / Max Bounds</th>
+<th class="py-4 px-6 font-['Inter']">Strategy</th>
+<th class="py-4 px-6 font-['Inter'] text-right">EMA</th>
+<th class="py-4 px-6 font-['Inter'] text-right">Last Poll</th>
+<th class="py-4 px-6 font-['Inter'] text-right">Total Polls</th>
+<th class="py-4 px-6 font-['Inter'] text-right">Errors</th>
+<th class="py-4 px-6 font-['Inter'] text-center">Action</th>
+</tr>
+</thead>
+<tbody class="text-sm divide-y divide-outline-variant/15">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group relative">
+<td class="py-3 px-6 font-bold text-on-surface flex items-center gap-3">
+<div class="w-1 h-8 bg-secondary-container absolute left-0 hidden group-hover:block"></div>
+                                SEC Filings (EDGAR)
+                            </td>
+<td class="py-3 px-6">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-semibold bg-secondary-container/10 text-secondary-container">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>
+                                    Active
+                                </span>
+</td>
+<td class="py-3 px-6 text-right font-mono text-primary">2.5m</td>
+<td class="py-3 px-6 text-right font-mono text-on-surface-variant">1m / 15m</td>
+<td class="py-3 px-6">
+<span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary border border-primary/20 text-xs font-semibold uppercase tracking-wider">Auto</span>
+</td>
+<td class="py-3 px-6 text-right font-mono text-on-surface">1.842</td>
+<td class="py-3 px-6 text-right font-mono text-on-surface-variant">12s ago</td>
+<td class="py-3 px-6 text-right font-mono text-on-surface">1,402,941</td>
+<td class="py-3 px-6 text-right font-mono text-secondary-container">0</td>
+<td class="py-3 px-6 text-center">
+<button class="text-primary hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors group relative">
+<td class="py-3 px-6 font-bold text-on-surface flex items-center gap-3">
+<div class="w-1 h-8 bg-secondary-container absolute left-0 hidden group-hover:block"></div>
+                                Twitter API (Cashtags)
+                            </td>
+<td class="py-3 px-6">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-semibold bg-secondary-container/10 text-secondary-container">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>
+                                    Active
+                                </span>
+</td>
+<td class="py-3 px-6 text-right font-mono text-primary">15s</td>
+<td class="py-3 px-6 text-right font-mono text-on-surface-variant">10s / 1m</td>
+<td class="py-3 px-6">
+<span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary border border-primary/20 text-xs font-semibold uppercase tracking-wider">Auto</span>
+</td>
+<td class="py-3 px-6 text-right font-mono text-on-surface">14.210</td>
+<td class="py-3 px-6 text-right font-mono text-on-surface-variant">2s ago</td>
+<td class="py-3 px-6 text-right font-mono text-on-surface">8,991,022</td>
+<td class="py-3 px-6 text-right font-mono text-error-container">14</td>
+<td class="py-3 px-6 text-center">
+<button class="text-primary hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors group relative bg-surface-container-highest/20">
+<td class="py-3 px-6 font-bold text-on-surface flex items-center gap-3">
+<div class="w-1 h-8 bg-error-container absolute left-0 hidden group-hover:block"></div>
+                                Reddit Scraper (WSB)
+                            </td>
+<td class="py-3 px-6">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-semibold bg-error-container/10 text-error-container">
+<span class="w-1.5 h-1.5 rounded-full bg-error-container"></span>
+                                    Disabled
+                                </span>
+</td>
+<td class="py-3 px-6 text-right font-mono text-on-surface-variant">--</td>
+<td class="py-3 px-6 text-right font-mono text-on-surface-variant">5m / 1h</td>
+<td class="py-3 px-6">
+<span class="px-2 py-0.5 rounded bg-surface-bright text-on-surface-variant border border-outline-variant/30 text-xs font-semibold uppercase tracking-wider">Manual</span>
+</td>
+<td class="py-3 px-6 text-right font-mono text-on-surface-variant">--</td>
+<td class="py-3 px-6 text-right font-mono text-on-surface-variant">4h ago</td>
+<td class="py-3 px-6 text-right font-mono text-on-surface">412,001</td>
+<td class="py-3 px-6 text-right font-mono text-error">1,042</td>
+<td class="py-3 px-6 text-center">
+<button class="text-primary hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low transition-colors group relative">
+<td class="py-3 px-6 font-bold text-on-surface flex items-center gap-3">
+<div class="w-1 h-8 bg-secondary-container absolute left-0 hidden group-hover:block"></div>
+                                Bloomberg Terminal RSS
+                            </td>
+<td class="py-3 px-6">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-semibold bg-secondary-container/10 text-secondary-container">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>
+                                    Active
+                                </span>
+</td>
+<td class="py-3 px-6 text-right font-mono text-primary">1m</td>
+<td class="py-3 px-6 text-right font-mono text-on-surface-variant">30s / 5m</td>
+<td class="py-3 px-6">
+<span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary border border-primary/20 text-xs font-semibold uppercase tracking-wider">Auto</span>
+</td>
+<td class="py-3 px-6 text-right font-mono text-on-surface">4.001</td>
+<td class="py-3 px-6 text-right font-mono text-on-surface-variant">45s ago</td>
+<td class="py-3 px-6 text-right font-mono text-on-surface">2,109,443</td>
+<td class="py-3 px-6 text-right font-mono text-secondary-container">2</td>
+<td class="py-3 px-6 text-center">
+<button class="text-primary hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Metrics Grid Section -->
+<h2 class="text-sm font-semibold uppercase tracking-widest text-on-surface-variant mb-4">Live Polling Telemetry</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Metric Card 1 -->
+<div class="bg-surface-container rounded-lg p-5 border border-outline-variant/15 flex flex-col justify-between h-40 relative overflow-hidden group hover:border-primary/30 transition-colors">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="text-on-surface font-semibold text-sm">SEC Filings</h3>
+<p class="text-on-surface-variant text-xs mt-1">Latency avg.</p>
+</div>
+<span class="px-2 py-1 rounded bg-secondary-container/10 text-secondary-container font-mono text-xs font-bold">142ms</span>
+</div>
+<div class="mt-auto">
+<div class="flex justify-between items-end">
+<span class="font-mono text-2xl font-medium text-on-surface">42<span class="text-sm text-on-surface-variant"> req/s</span></span>
+<div class="flex gap-1 h-8 items-end opacity-70 group-hover:opacity-100 transition-opacity">
+<div class="w-1.5 bg-primary/40 rounded-t h-[40%]"></div>
+<div class="w-1.5 bg-primary/60 rounded-t h-[60%]"></div>
+<div class="w-1.5 bg-primary/50 rounded-t h-[50%]"></div>
+<div class="w-1.5 bg-primary/80 rounded-t h-[80%]"></div>
+<div class="w-1.5 bg-primary/30 rounded-t h-[30%]"></div>
+<div class="w-1.5 bg-primary/90 rounded-t h-[90%]"></div>
+<div class="w-1.5 bg-primary rounded-t h-[100%]"></div>
+<div class="w-1.5 bg-primary/70 rounded-t h-[70%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Metric Card 2 -->
+<div class="bg-surface-container rounded-lg p-5 border border-outline-variant/15 flex flex-col justify-between h-40 relative overflow-hidden group hover:border-primary/30 transition-colors">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="text-on-surface font-semibold text-sm">Twitter API</h3>
+<p class="text-on-surface-variant text-xs mt-1">Latency avg.</p>
+</div>
+<span class="px-2 py-1 rounded bg-error-container/10 text-error-container font-mono text-xs font-bold">840ms</span>
+</div>
+<div class="mt-auto">
+<div class="flex justify-between items-end">
+<span class="font-mono text-2xl font-medium text-on-surface">1,204<span class="text-sm text-on-surface-variant"> req/s</span></span>
+<div class="flex gap-1 h-8 items-end opacity-70 group-hover:opacity-100 transition-opacity">
+<div class="w-1.5 bg-primary/80 rounded-t h-[80%]"></div>
+<div class="w-1.5 bg-primary/90 rounded-t h-[90%]"></div>
+<div class="w-1.5 bg-primary rounded-t h-[100%]"></div>
+<div class="w-1.5 bg-primary/70 rounded-t h-[70%]"></div>
+<div class="w-1.5 bg-error-container rounded-t h-[20%]"></div>
+<div class="w-1.5 bg-primary/80 rounded-t h-[80%]"></div>
+<div class="w-1.5 bg-primary/90 rounded-t h-[90%]"></div>
+<div class="w-1.5 bg-primary/60 rounded-t h-[60%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Metric Card 3 -->
+<div class="bg-surface-container-low border-dashed rounded-lg p-5 border border-outline-variant/30 flex flex-col justify-between h-40 relative overflow-hidden opacity-60">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="text-on-surface font-semibold text-sm">Reddit Scraper</h3>
+<p class="text-on-surface-variant text-xs mt-1">Latency avg.</p>
+</div>
+<span class="px-2 py-1 rounded bg-surface-variant text-on-surface-variant font-mono text-xs font-bold">--</span>
+</div>
+<div class="mt-auto flex items-center justify-center">
+<span class="text-sm font-semibold tracking-wider text-on-surface-variant uppercase">Source Offline</span>
+</div>
+</div>
+</div>
+</main>
+</body></html>
